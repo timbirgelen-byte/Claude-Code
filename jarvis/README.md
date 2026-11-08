@@ -16,6 +16,13 @@ und erstellt Marktanalysen mit Live-Kursdaten – per Tastatur oder Sprache.
 - **Gedächtnis pro Sitzung** – Rückfragen wie „und jetzt im Vergleich zu Apple?“ funktionieren
 - Live-Streaming der Antworten; läuft auf Desktop und Handy
 
+## Webversion ohne Server (z. B. fürs iPad)
+
+`web/` enthält eine Variante, die als Seite auf claude.ai läuft: https://claude.ai/artifact/5qMfeiga1JJyyssFXKeM9k
+Sie fragt Claude über das Claude-Konto des Betrachters (kein API-Key nötig). Weil die Seite selbst nicht ins
+Internet darf, liegen die Kursdaten als `web/snapshot.json` daneben – neu erzeugen mit
+`python web/build_snapshot.py` und die Seite erneut veröffentlichen. Live-Websuche gibt es nur in der Server-Version.
+
 ## Schnellstart
 
 Voraussetzung: Python 3.10+ und ein Anthropic-API-Key ([platform.claude.com](https://platform.claude.com/settings/keys)).
