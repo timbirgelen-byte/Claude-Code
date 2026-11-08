@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import base64
+import hmac
 import json
 import os
 import uuid
 from pathlib import Path
 
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Request, Response
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -17,9 +19,35 @@ from agent import EFFORT, MODEL, Session, run_turn
 STATIC = Path(__file__).parent / "static"
 MAX_SESSIONS = 200
 
+PASSWORD = os.getenv("JARVIS_PASSWORD", "")
+
 app = FastAPI(title="J.A.R.V.I.S.")
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 sessions: dict[str, Session] = {}
+
+
+@app.middleware("http")
+async def require_password(request: Request, call_next):
+    """Passwortschutz per Browser-Login (HTTP Basic), aktiv wenn JARVIS_PASSWORD gesetzt ist.
+
+    Benutzername ist egal, nur das Passwort zählt.
+    """
+    if PASSWORD:
+        ok = False
+        auth = request.headers.get("authorization", "")
+        if auth.lower().startswith("basic "):
+            try:
+                _, _, given = base64.b64decode(auth[6:]).decode("utf-8").partition(":")
+                ok = hmac.compare_digest(given.encode(), PASSWORD.encode())
+            except (ValueError, UnicodeDecodeError):
+                ok = False
+        if not ok:
+            return Response(
+                "Zugang verweigert.",
+                status_code=401,
+                headers={"WWW-Authenticate": 'Basic realm="JARVIS", charset="UTF-8"'},
+            )
+    return await call_next(request)
 
 
 class ChatRequest(BaseModel):

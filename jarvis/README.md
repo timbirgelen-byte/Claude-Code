@@ -46,6 +46,7 @@ Vom Handy im selben WLAN: `HOST=0.0.0.0 ./start.sh` und `http://<IP-des-Rechners
 | `ANTHROPIC_API_KEY` | – | Dein API-Key |
 | `JARVIS_MODEL` | `claude-opus-5-5` | Claude-Modell |
 | `JARVIS_EFFORT` | `medium` | Denktiefe: `low`, `medium`, `high`, `xhigh`, `max` (höher = gründlicher, langsamer, teurer) |
+| `JARVIS_PASSWORD` | – | Wenn gesetzt, fragt der Browser beim Öffnen nach diesem Passwort (Benutzername egal). Pflicht, sobald JARVIS im Internet erreichbar ist. |
 | `HOST` / `PORT` | `127.0.0.1` / `8000` | Server-Adresse |
 
 ## Beispiele
@@ -77,5 +78,6 @@ prüfen und in `run_custom_tool` ausführen.
 
 - Yahoo Finance wird über inoffizielle Endpunkte abgefragt; die können sich ändern oder zeitweise drosseln.
 - Gesprächsverläufe liegen nur im Arbeitsspeicher und sind nach einem Neustart weg.
-- Der Server hat keine Anmeldung – nur lokal oder im vertrauenswürdigen Netz betreiben.
+- Ohne `JARVIS_PASSWORD` hat der Server keine Anmeldung – dann nur lokal oder im vertrauenswürdigen Netz betreiben.
+- Ist kein `ANTHROPIC_API_KEY` gesetzt, fragt die Oberfläche nach einem Key (bleibt im Browser gespeichert; ändern über „UPLINK“).
 - Die Analysen sind Informationen, keine Anlageberatung.
