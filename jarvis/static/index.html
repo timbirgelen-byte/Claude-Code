@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>J.A.R.V.I.S.</title>
+  <meta name="theme-color" content="#02070d">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='none' stroke='%233ee6ff' stroke-width='8'/><circle cx='50' cy='50' r='16' fill='%233ee6ff'/></svg>">
+</head>
+<body class="state-idle">
+  <!-- Boot-Sequenz -->
+  <div id="boot" aria-hidden="true">
+    <div class="boot-inner">
+      <div class="boot-logo">J.A.R.V.I.S.</div>
+      <pre id="boot-log"></pre>
+      <div class="boot-bar"><span></span></div>
+    </div>
+  </div>
+
+  <div class="bg-grid"></div>
+  <div class="bg-scan"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <div>
+        <h1>J.A.R.V.I.S.</h1>
+        <p>Just A Rather Very Intelligent System</p>
+      </div>
+    </div>
+    <div class="top-stats">
+      <div class="stat"><label>Uplink</label><span id="uplink" class="dot">—</span></div>
+      <div class="stat hide-sm"><label>Kern</label><span id="model">—</span></div>
+      <div class="stat"><label id="date">—</label><span id="clock" class="mono">--:--:--</span></div>
+    </div>
+  </header>
+
+  <main class="hud">
+    <!-- Linke Spalte: Reaktor + Systemprotokoll -->
+    <aside class="col col-left">
+      <section class="panel reactor-panel">
+        <div class="panel-head"><span>01</span> // Kernstatus</div>
+        <div class="reactor-wrap">
+          <svg id="reactor" viewBox="0 0 240 240" aria-hidden="true">
+            <defs>
+              <radialGradient id="core" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="35%" stop-color="#bff6ff"/>
+                <stop offset="70%" stop-color="#3ee6ff" stop-opacity=".8"/>
+                <stop offset="100%" stop-color="#3ee6ff" stop-opacity="0"/>
+              </radialGradient>
+              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="3" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <g filter="url(#glow)" fill="none" stroke="var(--cyan)">
+              <circle class="r r1" cx="120" cy="120" r="112" stroke-width="1" stroke-dasharray="2 5" opacity=".6"/>
+              <circle class="r r2" cx="120" cy="120" r="102" stroke-width="3" stroke-dasharray="60 20 10 20" opacity=".85"/>
+              <circle class="r r3" cx="120" cy="120" r="88" stroke-width="1.2" stroke-dasharray="1 3" opacity=".7"/>
+              <circle class="r r4" cx="120" cy="120" r="76" stroke-width="9" stroke-dasharray="34 6" opacity=".55"/>
+              <circle class="r r5" cx="120" cy="120" r="60" stroke-width="1.5" stroke-dasharray="90 30" opacity=".9"/>
+              <circle cx="120" cy="120" r="50" stroke-width="1" opacity=".5"/>
+            </g>
+            <circle class="core" cx="120" cy="120" r="44" fill="url(#core)"/>
+            <circle class="core-ring" cx="120" cy="120" r="30" fill="none" stroke="#e8fdff" stroke-width="2" opacity=".9"/>
+          </svg>
+          <div class="reactor-label"><span id="state-label">BEREIT</span></div>
+        </div>
+        <div class="sys-lines">
+          <div><span>Websuche</span><b class="ok">AKTIV</b></div>
+          <div><span>Marktdaten</span><b class="ok">AKTIV</b></div>
+          <div><span>Spracheingabe</span><b id="stt-state">—</b></div>
+          <div><span>Sprachausgabe</span><b id="tts-state">AUS</b></div>
+        </div>
+      </section>
+
+      <section class="panel log-panel">
+        <div class="panel-head"><span>02</span> // Aktivitätsprotokoll</div>
+        <ol id="log" class="log mono"></ol>
+      </section>
+    </aside>
+
+    <!-- Mitte: Dialog -->
+    <section class="col col-center panel chat-panel">
+      <div class="panel-head"><span>03</span> // Dialog
+        <button id="reset" class="ghost-btn" title="Neue Sitzung">⟲ Neue Sitzung</button>
+      </div>
+      <div id="chat" class="chat" aria-live="polite"></div>
+
+      <div id="quick" class="quick">
+        <button data-q="Erstelle eine kompakte Marktanalyse zum DAX: aktuelle Lage, Trend, Treiber und Ausblick.">DAX-Analyse</button>
+        <button data-q="Wie ist die aktuelle Lage bei Bitcoin und Ethereum? Mit Kennzahlen und den wichtigsten Nachrichten.">Krypto-Lage</button>
+        <button data-q="Vergleiche NVIDIA und AMD über 1 Jahr: Performance, Volatilität, Trend und aktuelle News, als Tabelle.">NVDA vs. AMD</button>
+        <button data-q="Was sind die wichtigsten Wirtschafts- und Börsennachrichten heute?">Börsen-News heute</button>
+        <button data-q="Wie steht der Euro zum US-Dollar und was bewegt den Kurs gerade?">EUR/USD</button>
+      </div>
+
+      <form id="composer" class="composer" autocomplete="off">
+        <button type="button" id="mic" class="icon-btn" title="Spracheingabe (Strg+M)" aria-label="Spracheingabe">
+          <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg>
+        </button>
+        <textarea id="input" rows="1" placeholder="Befehl eingeben, Sir…" aria-label="Nachricht"></textarea>
+        <button type="button" id="voice" class="icon-btn" title="Sprachausgabe an/aus" aria-label="Sprachausgabe">
+          <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3Zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4ZM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6Z"/></svg>
+        </button>
+        <button type="submit" id="send" class="send-btn" aria-label="Senden">
+          <svg viewBox="0 0 24 24"><path d="M3 20.5 21 12 3 3.5v6.6L15 12 3 13.9v6.6Z"/></svg>
+        </button>
+      </form>
+    </section>
+
+    <!-- Rechte Spalte: Marktmonitor + Quellen -->
+    <aside class="col col-right">
+      <section class="panel market-panel">
+        <div class="panel-head"><span>04</span> // Marktmonitor</div>
+        <div id="markets" class="markets">
+          <p class="empty">Noch keine Marktdaten. Fragen Sie nach einer Aktie, einem Index oder einer Kryptowährung.</p>
+        </div>
+      </section>
+      <section class="panel sources-panel">
+        <div class="panel-head"><span>05</span> // Quellen</div>
+        <ul id="sources" class="sources">
+          <li class="empty">Quellen aus Websuchen erscheinen hier.</li>
+        </ul>
+      </section>
+    </aside>
+  </main>
+
+  <script src="/static/vendor/marked.min.js"></script>
+  <script src="/static/vendor/purify.min.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
