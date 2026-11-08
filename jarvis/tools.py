@@ -233,7 +233,7 @@ async def market_data(client: httpx.AsyncClient, symbol: str, range: str = "6mo"
     prev = prev or (closes[-2] if len(closes) > 1 else None)
     result = {
         "symbol": meta.get("symbol", symbol),
-        "name": max([meta.get("longName") or "", meta.get("shortName") or ""], key=len) or symbol,
+        "name": max((" ".join((meta.get(k) or "").split()) for k in ("longName", "shortName")), key=len) or symbol,
         "currency": meta.get("currency"),
         "exchange": meta.get("fullExchangeName") or meta.get("exchangeName"),
         "price": _r(price, 4 if price and price < 10 else 2),
