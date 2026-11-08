@@ -349,3 +349,25 @@ body.state-listening #reactor .r2, body.state-listening #reactor .r4 { stroke: v
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0s !important; animation-iteration-count: 1 !important; }
 }
+
+/* ---------- API-Key-Dialog ---------- */
+.stat-btn { background: none; border: none; padding: 0; text-align: right; }
+.stat-btn:hover span { text-shadow: 0 0 10px var(--cyan); }
+.keybox {
+  position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 16px;
+  background: rgba(1, 6, 11, .78); backdrop-filter: blur(4px);
+}
+.keybox.hidden { display: none; }
+.keybox-inner { width: min(460px, 100%); display: grid; gap: 10px; padding: 16px 18px 18px; background: rgba(6, 24, 36, .95); }
+.keybox h2 { margin: 0; font-family: var(--font-hd); font-size: 16px; letter-spacing: .14em; color: var(--cyan); font-weight: 500; }
+.keybox p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.4; }
+.keybox small { color: var(--muted); font-size: 12.5px; }
+.keybox input {
+  width: 100%; font-family: var(--font-mono); font-size: 16px; color: var(--text);
+  background: rgba(0, 0, 0, .4); border: 1px solid var(--panel-edge); border-radius: 3px; padding: 10px 12px; outline: none;
+}
+.keybox input:focus { border-color: var(--cyan); box-shadow: 0 0 14px rgba(62, 230, 255, .25); }
+.keybox-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.keybox-actions .ghost-btn { margin-left: 0; padding: 7px 14px; font-size: 14px; }
+.keybox-actions #keyclear { margin-right: auto; }
+.ghost-btn.primary { border-color: var(--cyan); color: var(--cyan); background: rgba(62, 230, 255, .1); }

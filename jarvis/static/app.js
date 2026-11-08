@@ -15,6 +15,8 @@
   let sessionId = null;
   let busy = false;
   let voiceOn = store.get("jarvis.voice", false);
+  let userKey = store.get("jarvis.key", "");
+  let serverHasKey = false;
   const seenSources = new Set();
   const marketCards = new Map();
 
@@ -25,7 +27,7 @@
       `> NEURONALER KERN: ${info?.model ?? "unbekannt"} ......... OK`,
       "> MODULE: WEBSUCHE · WEB-ANALYSE · MÄRKTE  OK",
       "> SPRACHSCHNITTSTELLE .................. " + (SpeechRec ? "OK" : "N/V"),
-      info?.api_key === false ? "> WARNUNG: KEIN API-KEY GESETZT" : "> UPLINK ZUR CLAUDE API .............. OK",
+      info?.api_key === false && !userKey ? "> WARNUNG: KEIN API-KEY GESETZT" : "> UPLINK ZUR CLAUDE API .............. OK",
       "> ALLE SYSTEME BEREIT. WILLKOMMEN, SIR.",
     ];
     const log = $("#boot-log"), bar = $(".boot-bar span"), bootEl = $("#boot");
@@ -120,6 +122,7 @@
   async function send(text) {
     text = text.trim();
     if (!text || busy) return;
+    if (!serverHasKey && !userKey) { openKeybox(); return; }
     busy = true; sendBtn.disabled = true;
     quickEl.classList.add("hidden");
     stopSpeaking();
@@ -173,6 +176,7 @@
         case "error":
           md += `${md ? "\n\n" : ""}> ⚠ ${ev.message}`; render();
           msg.classList.add("error"); log(`Fehler: ${ev.message}`, "err");
+          if (ev.code === "auth") openKeybox();
           break;
         case "done": break;
       }
@@ -181,7 +185,7 @@
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(userKey ? { "X-Jarvis-Key": userKey } : {}) },
         body: JSON.stringify({ message: text, session_id: sessionId }),
       });
       if (!res.ok || !res.body) {
@@ -421,18 +425,39 @@
     addMessage("bot", `${tod}, Sir. Alle Systeme sind online.\n\nIch kann für Sie **im Web recherchieren**, **Nachrichten zusammenfassen** und **Marktanalysen** mit Live-Kursdaten erstellen – für Aktien, Indizes, Währungen und Krypto. Tippen Sie einen Befehl oder nutzen Sie das Mikrofon.`);
   }
 
+  /* ---------------- API-Key ---------------- */
+  const keybox = $("#keybox"), keyinput = $("#keyinput");
+  function openKeybox() { keyinput.value = userKey; keybox.classList.remove("hidden"); keyinput.focus(); }
+  function closeKeybox() { keybox.classList.add("hidden"); }
+  function updateUplink(reachable = true) {
+    const up = $("#uplink");
+    const ok = reachable && (serverHasKey || !!userKey);
+    up.textContent = !reachable ? "OFFLINE" : ok ? "ONLINE" : "KEIN KEY";
+    up.classList.toggle("on", ok); up.classList.toggle("off", !ok);
+  }
+  $("#keyform").addEventListener("submit", (e) => {
+    e.preventDefault();
+    userKey = keyinput.value.trim(); store.set("jarvis.key", userKey);
+    closeKeybox(); updateUplink();
+    log(userKey ? "API-Key gespeichert." : "API-Key entfernt.", userKey ? "ok" : "");
+    if (userKey && inputEl.value.trim()) send(inputEl.value);
+  });
+  $("#keycancel").addEventListener("click", closeKeybox);
+  $("#keyclear").addEventListener("click", () => { keyinput.value = ""; });
+  $("#uplink-btn").addEventListener("click", openKeybox);
+
   /* ---------------- Start ---------------- */
   (async () => {
     let info = null;
     try { info = await (await fetch("/api/info")).json(); } catch { /* offline */ }
-    const up = $("#uplink");
-    up.textContent = info ? (info.api_key ? "ONLINE" : "KEIN KEY") : "OFFLINE";
-    up.classList.add(info?.api_key ? "on" : "off");
+    serverHasKey = !!info?.api_key;
+    updateUplink(!!info);
     $("#model").textContent = info ? `${info.model.toUpperCase()} · ${info.effort.toUpperCase()}` : "—";
     log(`Kern verbunden: ${info?.model ?? "?"}`);
-    if (info && !info.api_key) log("ANTHROPIC_API_KEY fehlt – siehe README.", "err");
+    if (info && !serverHasKey && !userKey) log("Kein API-Key – tippe oben auf UPLINK.", "err");
     greet();
     await boot(info);
-    inputEl.focus({ preventScroll: true });
+    if (info && !serverHasKey && !userKey) openKeybox();
+    else inputEl.focus({ preventScroll: true });
   })();
 })();

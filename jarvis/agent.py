@@ -55,6 +55,19 @@ class Session:
 
 
 client = anthropic.AsyncAnthropic()
+_user_clients: dict[str, anthropic.AsyncAnthropic] = {}
+
+
+def get_client(api_key: str | None) -> anthropic.AsyncAnthropic:
+    """Server-Key (aus der Umgebung) oder ein in der Oberfläche eingegebener Key."""
+    if not api_key:
+        return client
+    c = _user_clients.get(api_key)
+    if c is None:
+        if len(_user_clients) >= 20:
+            _user_clients.clear()
+        c = _user_clients[api_key] = anthropic.AsyncAnthropic(api_key=api_key)
+    return c
 
 
 def _summarize_input(name: str, data: Any) -> str:
@@ -90,8 +103,9 @@ def _is_error_result(block: Any) -> bool:
     return content is not None and not isinstance(content, list) and getattr(content, "error_code", None) is not None
 
 
-async def run_turn(session: Session, user_text: str) -> AsyncIterator[dict[str, Any]]:
+async def run_turn(session: Session, user_text: str, api_key: str | None = None) -> AsyncIterator[dict[str, Any]]:
     """Verarbeitet eine Nutzernachricht und liefert Events für die Oberfläche."""
+    api = get_client(api_key)
     history_len = len(session.messages)
     session.messages.append({"role": "user", "content": user_text})
     today = date.today()
@@ -106,7 +120,7 @@ async def run_turn(session: Session, user_text: str) -> AsyncIterator[dict[str, 
             step += 1
             yield {"type": "status", "state": "thinking"}
             try:
-                async with client.beta.messages.stream(
+                async with api.beta.messages.stream(
                     model=MODEL,
                     max_tokens=64000,
                     system=system,
@@ -194,7 +208,7 @@ async def run_turn(session: Session, user_text: str) -> AsyncIterator[dict[str, 
 
     except anthropic.AuthenticationError:
         del session.messages[history_len:]
-        yield {"type": "error", "message": "Ungültiger oder fehlender API-Key (ANTHROPIC_API_KEY)."}
+        yield {"type": "error", "code": "auth", "message": "Ungültiger oder fehlender API-Key."}
     except anthropic.RateLimitError:
         del session.messages[history_len:]
         yield {"type": "error", "message": "Rate-Limit erreicht – bitte kurz warten."}

@@ -21,6 +21,22 @@
     </div>
   </div>
 
+  <!-- API-Key-Eingabe -->
+  <div id="keybox" class="keybox hidden" role="dialog" aria-modal="true" aria-labelledby="keybox-title">
+    <form id="keyform" class="panel keybox-inner" autocomplete="off">
+      <div class="panel-head"><span>00</span> // Zugangscode</div>
+      <h2 id="keybox-title">Anthropic-API-Key</h2>
+      <p>Der Server hat keinen eigenen Key. Gib deinen Key hier ein. Er bleibt in diesem Browser gespeichert und geht nur an deinen JARVIS-Server.</p>
+      <input id="keyinput" type="password" placeholder="sk-ant-…" spellcheck="false" autocapitalize="off" autocorrect="off">
+      <div class="keybox-actions">
+        <button type="button" id="keyclear" class="ghost-btn">Key löschen</button>
+        <button type="button" id="keycancel" class="ghost-btn">Abbrechen</button>
+        <button type="submit" class="ghost-btn primary">Speichern</button>
+      </div>
+      <small>Key erstellen: platform.claude.com → Settings → API Keys</small>
+    </form>
+  </div>
+
   <div class="bg-grid"></div>
   <div class="bg-scan"></div>
 
@@ -33,7 +49,7 @@
       </div>
     </div>
     <div class="top-stats">
-      <div class="stat"><label>Uplink</label><span id="uplink" class="dot">—</span></div>
+      <button type="button" class="stat stat-btn" id="uplink-btn" title="API-Key festlegen"><label>Uplink</label><span id="uplink" class="dot">—</span></button>
       <div class="stat hide-sm"><label>Kern</label><span id="model">—</span></div>
       <div class="stat"><label id="date">—</label><span id="clock" class="mono">--:--:--</span></div>
     </div>

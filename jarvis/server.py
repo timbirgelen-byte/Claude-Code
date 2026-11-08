@@ -7,7 +7,7 @@ import os
 import uuid
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -48,7 +48,10 @@ async def reset(body: dict) -> dict:
 
 
 @app.post("/api/chat")
-async def chat(req: ChatRequest) -> StreamingResponse:
+async def chat(req: ChatRequest, x_jarvis_key: str | None = Header(default=None)) -> StreamingResponse:
+    user_key = (x_jarvis_key or "").strip() or None
+    if user_key and len(user_key) > 300:
+        raise HTTPException(400, "API-Key ist zu lang.")
     sid = req.session_id or uuid.uuid4().hex
     session = sessions.get(sid)
     if session is None:
@@ -61,7 +64,7 @@ async def chat(req: ChatRequest) -> StreamingResponse:
     async def events():
         async with session.lock:
             yield f"data: {json.dumps({'type': 'session', 'id': sid})}\n\n"
-            async for ev in run_turn(session, req.message):
+            async for ev in run_turn(session, req.message, user_key):
                 yield f"data: {json.dumps(ev, ensure_ascii=False)}\n\n"
 
     return StreamingResponse(
