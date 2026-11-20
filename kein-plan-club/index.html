@@ -1,0 +1,1412 @@
+<title>Kein Plan Club</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Rubik:wght@400;500;600;700&family=Permanent+Marker&display=swap">
+<style>
+/* Layout: Karopapier-Schulheft mit dicken Sticker-Karten. Hero = Ideen-Würfel, dann Crew, Spiele-Raster, Ideen-Liste. Spiele laufen in einem Vollbild-Overlay. */
+:root{
+  --paper:#F4F6FB; --grid:rgba(58,92,210,.10); --card:#FFFFFF; --ink:#171B38; --muted:#596089; --edge:#171B38;
+  --tomato:#FF5B3A; --sun:#FFC83D; --mint:#23C49B; --sky:#4C88FF; --pink:#FF86BC;
+  --on:#14172E; --stage-dark:#14172E;
+  --f-display:"Bricolage Grotesque","Arial Black",system-ui,sans-serif;
+  --f-body:"Rubik",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-hand:"Permanent Marker","Comic Sans MS","Chalkboard SE",cursive;
+  --r:16px; --sh:4px 4px 0 var(--edge);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#11142B; --grid:rgba(255,255,255,.05); --card:#1D2148; --ink:#F1F2FA; --muted:#A6ABD0; --edge:#04050F; color-scheme:dark;
+}}
+:root[data-theme="dark"]{--paper:#11142B; --grid:rgba(255,255,255,.05); --card:#1D2148; --ink:#F1F2FA; --muted:#A6ABD0; --edge:#04050F; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+body{
+  background-color:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px;
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.02;letter-spacing:-.02em}
+p{margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px dashed var(--sky);outline-offset:3px}
+.wrap{max-width:1160px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);border-bottom:2.5px solid var(--edge)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:10px}
+.logo{font-family:var(--f-display);font-weight:800;font-size:1.25rem;display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.logo i{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--sun);color:var(--on);border:2.5px solid var(--edge);font-style:normal;font-family:var(--f-hand);font-size:1.2rem;transform:rotate(-6deg)}
+.nav{display:flex;gap:4px;flex-wrap:wrap}
+.nav a{color:var(--ink);text-decoration:none;font-weight:600;padding:6px 10px;border-radius:10px}
+.nav a:hover{background:var(--card)}
+.logo{white-space:nowrap}
+@media (max-width:520px){.nav a:nth-child(2),.nav a:nth-child(4){display:none}}
+
+/* buttons & chips */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--f-display);font-weight:800;font-size:1.05rem;letter-spacing:-.01em;
+  padding:12px 20px;border-radius:14px;border:2.5px solid var(--edge);background:var(--sun);color:var(--on);box-shadow:var(--sh);cursor:pointer;
+  transition:transform .08s,box-shadow .08s;touch-action:manipulation;text-align:center;line-height:1.15}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--edge)}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--edge)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:var(--sh)}
+.btn.tomato{background:var(--tomato)} .btn.sky{background:var(--sky)} .btn.mint{background:var(--mint)} .btn.pink{background:var(--pink)}
+.btn.ghost{background:var(--card);color:var(--ink)}
+.btn.big{font-size:1.3rem;padding:16px 26px;width:100%}
+.btn.small{font-size:.92rem;padding:8px 13px;box-shadow:3px 3px 0 var(--edge)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--edge);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 14px;font-weight:600;font-size:.95rem;cursor:pointer;touch-action:manipulation}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.tag{display:inline-block;font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:999px;border:1.5px solid currentColor;opacity:.85}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.kicker{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.hand{font-family:var(--f-hand);font-weight:400;letter-spacing:0}
+
+/* hero */
+.hero{padding-block:44px 30px}
+.hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center}
+@media (max-width:880px){.hero .wrap{grid-template-columns:1fr;gap:30px}}
+.hero h1{font-size:clamp(2.7rem,7.4vw,5.6rem);font-weight:800}
+.hero h1 span{background:var(--sun);color:var(--on);padding:0 .12em;border-radius:.12em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.scribble{font-family:var(--f-hand);color:var(--tomato);font-size:clamp(1.2rem,2.6vw,1.6rem);transform:rotate(-2deg);display:inline-block;margin-top:14px}
+.hero .lead{max-width:54ch;color:var(--muted);font-size:1.08rem;margin-top:12px}
+.filters{display:grid;gap:12px;margin-top:26px}
+.frow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.frow b{min-width:108px;font-size:.9rem}
+.count{margin-top:14px;color:var(--muted);font-size:.95rem}
+
+.idea{position:relative;background:var(--card);border:2.5px solid var(--edge);border-radius:22px;box-shadow:8px 8px 0 var(--edge);padding:28px;transform:rotate(1.2deg);min-width:0}
+.idea::before{content:"";position:absolute;top:-14px;left:50%;width:110px;height:28px;transform:translateX(-50%) rotate(-3deg);background:color-mix(in srgb,var(--sun) 70%,transparent);border:1.5px dashed color-mix(in srgb,var(--edge) 40%,transparent)}
+.idea .kicker{margin-bottom:10px}
+.idea h2{font-size:clamp(1.9rem,4.2vw,2.8rem);font-weight:800}
+.idea p.desc{margin-top:12px;font-size:1.07rem;max-width:56ch}
+.idea .tags{margin-top:16px;color:var(--muted)}
+.idea .acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.idea.flip{animation:flip .42s ease}
+@keyframes flip{0%{transform:rotate(1.2deg) rotateX(0)}50%{transform:rotate(-2deg) rotateX(80deg)}100%{transform:rotate(1.2deg) rotateX(0)}}
+
+/* sections */
+section.block{padding-block:38px}
+.head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.head h2{font-size:clamp(2rem,4.6vw,3.1rem);font-weight:800}
+.head p{color:var(--muted);max-width:60ch}
+
+/* crew */
+.crew{display:grid;grid-template-columns:1.2fr 1fr;gap:22px}
+@media (max-width:880px){.crew{grid-template-columns:1fr}}
+.panel{background:var(--card);border:2.5px solid var(--edge);border-radius:var(--r);box-shadow:var(--sh);padding:20px;min-width:0}
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-top:12px}
+.pin{display:flex;align-items:center;border:2px solid var(--edge);border-radius:12px;background:var(--paper);overflow:hidden}
+.pin input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:600 1rem var(--f-body);padding:10px 12px}
+.pin input:focus{outline:none}
+.pin:focus-within{outline:3px dashed var(--sky);outline-offset:2px}
+.pin button{border:0;background:transparent;color:var(--muted);font-size:1.3rem;width:38px;height:42px;cursor:pointer}
+.pin button:hover{color:var(--tomato)}
+.prow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.teams{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.team{border:2.5px solid var(--edge);border-radius:14px;padding:14px;color:var(--on)}
+.team.a{background:var(--tomato)} .team.b{background:var(--sky)}
+.team b{font-family:var(--f-display);font-size:1.2rem;display:block;line-height:1.1}
+.team span{font-size:.95rem;font-weight:500}
+.starter{margin-top:16px;font-family:var(--f-display);font-weight:800;font-size:1.5rem;min-height:1.6em}
+
+/* games grid */
+.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
+.tile{position:relative;text-align:left;border:2.5px solid var(--edge);border-radius:20px;box-shadow:var(--sh);padding:20px 20px 18px;cursor:pointer;color:var(--on);
+  display:flex;flex-direction:column;gap:10px;min-height:220px;transition:transform .15s,box-shadow .15s}
+.tile:hover{transform:translate(-2px,-2px) rotate(-.8deg);box-shadow:7px 7px 0 var(--edge)}
+.tile:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--edge)}
+.tile .kick{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;opacity:.8}
+.tile h3{font-size:1.7rem;font-weight:800}
+.tile p{font-size:.97rem;line-height:1.4;flex:1}
+.tile .tags{color:var(--on)}
+.tile .go{position:absolute;top:16px;right:16px;width:38px;height:38px;border-radius:50%;background:var(--card);color:var(--ink);border:2px solid var(--edge);display:grid;place-items:center;font-weight:800}
+.bg-tomato{background:var(--tomato)} .bg-sun{background:var(--sun)} .bg-sky{background:var(--sky)} .bg-mint{background:var(--mint)} .bg-pink{background:var(--pink)}
+
+/* idea list */
+.ilist{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.icard{background:var(--card);border:2px solid var(--edge);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.icard h3{font-size:1.2rem;font-weight:700;letter-spacing:-.01em}
+.icard p{font-size:.95rem;color:var(--muted);flex:1}
+.icard .tags{color:var(--muted)}
+.icard .btn{align-self:flex-start;margin-top:4px}
+footer{padding-block:40px 56px;color:var(--muted);font-size:.95rem;border-top:2.5px dashed color-mix(in srgb,var(--edge) 35%,transparent);margin-top:20px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* ---------- game overlay ---------- */
+#game{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:26px 26px}
+#game[hidden]{display:none}
+.ghead{background:var(--gc,var(--sun));color:var(--on);border-bottom:2.5px solid var(--edge);
+  padding:calc(env(safe-area-inset-top,0px) + 10px) max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));
+  display:flex;align-items:center;gap:12px}
+.ghead h2{font-size:1.35rem;font-weight:800;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ghead .btn{background:var(--card);color:var(--ink)}
+.gbody{flex:1;min-height:0;overflow:auto;padding:22px max(16px,env(safe-area-inset-right,0px)) calc(28px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.gbody.flush{padding:0;display:flex;flex-direction:column;overflow:hidden}
+.stage{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.stage.center{text-align:center;align-items:stretch}
+.lead{font-size:1.1rem;max-width:62ch}
+.stage.center .lead{margin:0 auto}
+.field{display:flex;flex-direction:column;gap:8px}
+.field > span{font-weight:700;font-size:.92rem}
+.mega{font-family:var(--f-display);font-weight:800;font-size:clamp(2.4rem,9vw,5.4rem);line-height:1;letter-spacing:-.03em;text-wrap:balance;overflow-wrap:anywhere}
+.big2{font-family:var(--f-display);font-weight:800;font-size:clamp(1.6rem,5.4vw,2.6rem);line-height:1.08;text-wrap:balance}
+.card{background:var(--card);border:2.5px solid var(--edge);border-radius:20px;box-shadow:6px 6px 0 var(--edge);padding:26px}
+.card.c-tomato{background:var(--tomato);color:var(--on)} .card.c-sky{background:var(--sky);color:var(--on)} .card.c-mint{background:var(--mint);color:var(--on)} .card.c-sun{background:var(--sun);color:var(--on)} .card.c-pink{background:var(--pink);color:var(--on)}
+.card.c-dark{background:var(--stage-dark);color:#fff}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rowx{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.note{color:var(--muted);font-size:.95rem}
+.pop{animation:pop .35s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+.shake{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+/* scoreboard */
+.score{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.spill{border:2.5px solid var(--edge);border-radius:14px;padding:10px 14px;color:var(--on);display:flex;justify-content:space-between;align-items:center;gap:8px;opacity:.6}
+.spill.on{opacity:1;box-shadow:var(--sh)}
+.spill.a{background:var(--tomato)} .spill.b{background:var(--sky)}
+.spill b{font-family:var(--f-display);font-size:1rem;line-height:1.1;min-width:0;overflow-wrap:anywhere}
+.spill strong{font-family:var(--f-display);font-size:1.8rem;font-variant-numeric:tabular-nums}
+.track{height:12px;border-radius:99px;background:color-mix(in srgb,var(--on) 18%,transparent);overflow:hidden;margin-top:6px;grid-column:1/-1}
+.track i{display:block;height:100%;background:var(--on);border-radius:99px;transition:width .4s}
+.spill.withtrack{display:grid;grid-template-columns:1fr auto}
+
+/* timer */
+.timer{font-family:var(--f-display);font-weight:800;font-size:clamp(3rem,12vw,6rem);font-variant-numeric:tabular-nums;line-height:1}
+.tbar{height:14px;border:2.5px solid var(--edge);border-radius:99px;overflow:hidden;background:var(--card)}
+.tbar i{display:block;height:100%;width:100%;background:var(--mint);transform-origin:left;animation:shrink var(--dur,60s) linear forwards}
+@keyframes shrink{to{transform:scaleX(0)}}
+.tbar.hot i{background:var(--tomato)}
+
+/* stirnraten */
+.stirn{display:flex;flex-direction:column;gap:18px;max-width:900px;margin:0 auto;min-height:100%}
+.stirn .wordbox{flex:1;display:grid;place-items:center;min-height:42vh;text-align:center;padding:20px}
+.stirn .mega{font-size:clamp(2.6rem,11vw,7rem)}
+.stirn .row2 .btn{min-height:96px;font-size:1.5rem}
+.flash-ok{animation:fok .35s}
+.flash-no{animation:fno .35s}
+@keyframes fok{from{background:var(--mint)}}
+@keyframes fno{from{background:var(--sun)}}
+.reslist{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.reslist span{border:2px solid var(--edge);border-radius:999px;padding:5px 12px;font-weight:600;background:var(--card)}
+.reslist span.ok{background:var(--mint);color:var(--on)}
+.reslist span.no{text-decoration:line-through;opacity:.6}
+
+/* draw pad */
+.pad{width:100%;height:min(52vh,440px);background:#fff;border:2.5px solid var(--edge);border-radius:16px;touch-action:none;color:#171B38;cursor:crosshair}
+
+/* bottle */
+.spinwrap{position:relative;width:min(86vw,430px);aspect-ratio:1;max-width:100%;margin:0 auto}
+.ring{position:absolute;inset:6%;border-radius:50%;border:2.5px dashed color-mix(in srgb,var(--edge) 40%,transparent)}
+.pname{position:absolute;transform:translate(-50%,-50%);background:var(--card);border:2.5px solid var(--edge);border-radius:999px;padding:6px 12px;font-weight:700;max-width:34%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .2s,transform .2s}
+.pname.hit{background:var(--sun);color:var(--on);transform:translate(-50%,-50%) scale(1.18);box-shadow:var(--sh)}
+.bottle{position:absolute;left:50%;top:50%;width:19%;height:62%;margin-left:-9.5%;margin-top:-31%;transition:transform 3.4s cubic-bezier(.12,.7,.18,1);pointer-events:none}
+.bottle svg{width:100%;height:100%;display:block}
+
+/* bomb */
+.bomb{width:min(56vw,240px);aspect-ratio:1;margin:10px auto;position:relative;animation:pulse 1s infinite}
+.bomb .ball{position:absolute;inset:12% 6% 0 6%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#4a4f78,#0d0f20 70%);border:3px solid var(--edge)}
+.bomb .cap{position:absolute;left:50%;top:6%;width:22%;height:14%;transform:translateX(-50%);background:#2b2f52;border:3px solid var(--edge);border-radius:6px}
+.bomb .fuse{position:absolute;left:52%;top:-6%;width:24%;height:16%;border:4px solid #a07a4a;border-color:#a07a4a transparent transparent #a07a4a;border-radius:60% 0 0 0}
+.bomb .spark{position:absolute;left:72%;top:-12%;width:18%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#fff 0 20%,var(--sun) 35%,var(--tomato) 60%,transparent 70%);animation:spark .18s infinite alternate}
+@keyframes pulse{50%{transform:scale(1.05)}}
+@keyframes spark{to{transform:scale(1.35) rotate(40deg)}}
+.boom{animation:boomflash .7s}
+@keyframes boomflash{0%{background:#fff}30%{background:var(--sun)}60%{background:var(--tomato)}}
+.tally{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.tally .btn{min-width:120px}
+
+/* duel */
+.duel{flex:1;display:grid;grid-template-rows:1fr auto 1fr;min-height:0;user-select:none;-webkit-user-select:none}
+.half{position:relative;display:grid;place-items:center;text-align:center;padding:14px max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px));cursor:pointer;touch-action:manipulation;transition:background .12s;color:var(--on);overflow:hidden}
+.half.a{background:var(--tomato)} .half.b{background:var(--sky)}
+.half.top .in{transform:rotate(180deg)}
+.half .in{display:flex;flex-direction:column;align-items:center;gap:6px}
+.half .dn{font-family:var(--f-display);font-weight:800;font-size:1.1rem}
+.half .dm{font-size:.88rem;opacity:.85}
+.half .ds{font-family:var(--f-display);font-weight:800;font-size:clamp(2.4rem,9vh,4.6rem);line-height:1}
+.half .dsig{font-family:var(--f-display);font-weight:800;font-size:clamp(1.6rem,6vh,3rem);line-height:1;min-height:1em;padding:8px 18px;border-radius:14px}
+.half.go{background:var(--mint)}
+.half.dark{background:var(--stage-dark);color:#fff}
+.mid{background:var(--card);border-block:2.5px solid var(--edge);padding:10px 16px;display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
+
+/* connect four */
+.c4{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;background:var(--sky);padding:10px;border:2.5px solid var(--edge);border-radius:18px;box-shadow:6px 6px 0 var(--edge);width:min(100%,560px);margin:0 auto}
+.c4 button{aspect-ratio:1;border-radius:50%;border:2.5px solid var(--edge);background:var(--paper);padding:0;cursor:pointer;position:relative;overflow:visible;touch-action:manipulation}
+.c4 .disc{position:absolute;inset:-2.5px;border-radius:50%;border:2.5px solid var(--edge);animation:drop calc(.12s + var(--d) * .05s) ease-in}
+.c4 .disc.a{background:var(--tomato)} .c4 .disc.b{background:var(--sun)}
+.c4 .disc.win{box-shadow:0 0 0 4px #fff inset;animation:winp .6s infinite alternate}
+@keyframes drop{from{transform:translateY(calc(var(--d) * -112%))}}
+@keyframes winp{to{transform:scale(.86)}}
+
+/* stadt land fluss */
+.letter{font-family:var(--f-display);font-weight:800;font-size:clamp(7rem,30vw,13rem);line-height:.9;width:min(60vw,260px);aspect-ratio:1;margin:0 auto;display:grid;place-items:center;
+  background:var(--sun);color:var(--on);border:3px solid var(--edge);border-radius:28px;box-shadow:8px 8px 0 var(--edge)}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.cats span{border:2px solid var(--edge);border-radius:10px;padding:8px 10px;background:var(--card);font-weight:600}
+
+/* hangman */
+.hang{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;align-items:center}
+@media (max-width:600px){.hang{grid-template-columns:1fr}.hang svg{max-width:180px;margin:0 auto}}
+.hang svg{width:100%;height:auto;display:block}
+.hang svg *{stroke:var(--ink);stroke-width:5;stroke-linecap:round;fill:none}
+.slots{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.slots span{min-width:1.3em;font-family:var(--f-display);font-weight:800;font-size:clamp(1.6rem,6vw,2.6rem);border-bottom:4px solid var(--ink);text-align:center;line-height:1.15}
+.slots span.gap{border-bottom-color:transparent}
+.keys{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px}
+.keys button{height:48px;border:2px solid var(--edge);border-radius:10px;background:var(--card);font-weight:700;font-size:1.1rem;cursor:pointer;touch-action:manipulation}
+.keys button.hit{background:var(--mint);color:var(--on)}
+.keys button.miss{background:var(--paper);opacity:.4;text-decoration:line-through}
+input.txt{width:100%;border:2.5px solid var(--edge);border-radius:12px;background:var(--card);color:var(--ink);font:600 1.15rem var(--f-body);padding:12px 14px}
+
+/* fingers */
+.fingers{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.fingers button{border:2px solid var(--edge);border-radius:12px;background:var(--card);padding:10px;cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:6px;font-weight:600;touch-action:manipulation}
+.fingers button strong{font-family:var(--f-display);font-size:1.4rem;font-variant-numeric:tabular-nums}
+.fingers button.out{opacity:.45;text-decoration:line-through}
+.wyr{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch}
+.wyr .or{align-self:center;font-family:var(--f-hand);font-size:1.4rem}
+.wyr button{border:2.5px solid var(--edge);border-radius:18px;box-shadow:var(--sh);padding:22px 16px;font-family:var(--f-display);font-weight:800;font-size:clamp(1.15rem,3.6vw,1.6rem);line-height:1.15;color:var(--on);cursor:pointer;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;touch-action:manipulation}
+.wyr button small{font-family:var(--f-body);font-size:.9rem;font-weight:600}
+@media (max-width:560px){.wyr{grid-template-columns:1fr}}
+.hidden-word{filter:blur(14px);user-select:none}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#ideen"><i>?</i>Kein Plan Club</a>
+    <nav class="nav" aria-label="Bereiche">
+      <a href="#ideen">Ideen</a>
+      <a href="#crew">Crew</a>
+      <a href="#spiele">Spiele</a>
+      <a href="#alle-ideen">Alle Ideen</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero" id="ideen">
+    <div class="wrap">
+      <div>
+        <h1>Was machen wir <span>jetzt?</span></h1>
+        <p class="scribble">Kein Plan? Kein Problem.</p>
+        <p class="lead">Würfelt eine Idee aus, oder startet direkt eins der Spiele hier auf dem Handy. Gemacht für vier Leute auf einem Sofa, klappt aber auch zu dritt oder zu acht.</p>
+        <div class="filters" id="filters"></div>
+        <p class="count" id="count"></p>
+      </div>
+      <article class="idea" id="idea" aria-live="polite"></article>
+    </div>
+  </section>
+
+  <section class="block" id="crew">
+    <div class="wrap">
+      <div class="head">
+        <h2>Eure Crew</h2>
+        <p>Tragt eure Namen ein. Die Spiele sagen dann, wer dran ist, und die 2-gegen-2-Spiele nutzen eure Teams.</p>
+      </div>
+      <div class="crew">
+        <div class="panel">
+          <p class="kicker">Spieler</p>
+          <div class="plist" id="plist"></div>
+          <div class="prow">
+            <button class="btn small ghost" id="addP" type="button">+ Person dazu</button>
+            <button class="btn small" id="whoStarts" type="button">Wer fängt an?</button>
+          </div>
+          <p class="starter" id="starter" aria-live="polite"></p>
+        </div>
+        <div class="panel">
+          <p class="kicker">Teams für 2 gegen 2</p>
+          <div class="teams" id="teams"></div>
+          <div class="prow"><button class="btn small tomato" id="mixTeams" type="button">Teams neu mischen</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="spiele">
+    <div class="wrap">
+      <div class="head">
+        <h2>Direkt spielen</h2>
+        <p>Zwölf Spiele, die hier im Browser laufen. Einfach antippen. Am besten mit Ton und voller Helligkeit.</p>
+      </div>
+      <div class="games" id="games"></div>
+    </div>
+  </section>
+
+  <section class="block" id="alle-ideen">
+    <div class="wrap">
+      <div class="head">
+        <h2>Alle Ideen</h2>
+        <p id="listNote">Gefiltert wie oben. Mit dabei: Kindheitsklassiker, Sachen für draußen und Ideen, für die ihr kurz etwas vorbereitet.</p>
+      </div>
+      <div class="ilist" id="ilist"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Kein Plan Club · Alle Spiele laufen offline auf einem Gerät, nichts wird gespeichert außer euren Namen auf diesem Handy.</p>
+    <p class="hand">Viel Spaß!</p>
+  </div>
+</footer>
+
+<div id="game" role="dialog" aria-modal="true" aria-labelledby="gTitle" hidden>
+  <div class="ghead">
+    <button class="btn small" id="gBack" type="button">← Zurück</button>
+    <h2 id="gTitle">Spiel</h2>
+    <button class="btn small" id="gSound" type="button" aria-pressed="true">Ton an</button>
+  </div>
+  <div class="gbody" id="gBody"></div>
+</div>
+
+<script>
+"use strict";
+/* ================= helpers ================= */
+const $ = s => document.querySelector(s);
+function h(tag, attrs, ...kids){
+  const el = document.createElement(tag);
+  if (attrs) for (const [k,v] of Object.entries(attrs)){
+    if (v == null || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k === 'style') el.style.cssText = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const c of kids.flat(Infinity)){
+    if (c == null || c === false) continue;
+    el.append(c.nodeType ? c : document.createTextNode(String(c)));
+  }
+  return el;
+}
+const rand = n => Math.floor(Math.random()*n);
+const pick = a => a[rand(a.length)];
+function shuffle(a){ a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=rand(i+1); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function deck(arr){ let d=[]; return () => { if(!d.length) d = shuffle(arr); return d.pop(); }; }
+function joinNames(a){ return a.length<2 ? (a[0]||'') : a.slice(0,-1).join(', ') + ' & ' + a[a.length-1]; }
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem('kpc_'+k)); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem('kpc_'+k, JSON.stringify(v)); }catch(e){} }
+};
+
+/* ================= sound ================= */
+let actx = null, muted = !!store.get('muted');
+function audio(){
+  if (muted) return null;
+  try{ actx = actx || new (window.AudioContext||window.webkitAudioContext)(); if (actx.state==='suspended') actx.resume(); }catch(e){ actx=null; }
+  return actx;
+}
+function tone(f=660, d=.12, type='square', vol=.05){
+  const a = audio(); if(!a) return;
+  const o=a.createOscillator(), g=a.createGain(); o.type=type; o.frequency.value=f;
+  g.gain.setValueAtTime(vol,a.currentTime); g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+d);
+  o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime+d+.03);
+}
+function noise(d=.9){
+  const a = audio(); if(!a) return;
+  const len = Math.floor(a.sampleRate*d), buf = a.createBuffer(1,len,a.sampleRate), ch = buf.getChannelData(0);
+  for (let i=0;i<len;i++) ch[i] = (Math.random()*2-1) * Math.pow(1-i/len, 2.2);
+  const s=a.createBufferSource(), g=a.createGain(), f=a.createBiquadFilter(); f.type='lowpass'; f.frequency.value=900;
+  s.buffer=buf; g.gain.value=.5; s.connect(f).connect(g).connect(a.destination); s.start();
+}
+function buzz(ms=200){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
+const yay = () => { tone(660,.1,'square'); setTimeout(()=>tone(990,.16,'square'),90); };
+
+/* ================= data ================= */
+const W = s => s.split('|');
+const IMPOSTER = {
+  'Essen': W('Pizza|Döner|Sushi|Spaghetti|Pommes|Burger|Pfannkuchen|Popcorn|Eis|Currywurst|Lasagne|Tacos|Brezel|Schokolade|Gummibärchen|Nutella|Müsli|Wassermelone|Croissant|Ramen|Falafel|Raclette|Waffeln|Nachos'),
+  'Orte': W('Schule|Schwimmbad|Flughafen|Kino|Krankenhaus|Strand|Zoo|Supermarkt|Freizeitpark|Bibliothek|Fitnessstudio|Campingplatz|Bahnhof|Friseur|Zahnarzt|Disco|Bäckerei|Fußballstadion|Weltraumstation|Museum|Skigebiet|Bauernhof|Tankstelle|Klassenfahrt-Bus'),
+  'Tiere': W('Pinguin|Giraffe|Hamster|Hai|Elefant|Katze|Faultier|Krokodil|Papagei|Kuh|Oktopus|Eichhörnchen|Kamel|Delfin|Spinne|Igel|Löwe|Schildkröte|Pferd|Flamingo|Känguru|Biene|Wal|Fuchs'),
+  'Alltagsdinge': W('Handy|Zahnbürste|Regenschirm|Kopfhörer|Rucksack|Kühlschrank|Fahrrad|Sonnenbrille|Taschenrechner|Kerze|Spiegel|Föhn|Fernbedienung|Ladekabel|Socken|Schlüssel|Trampolin|Waschmaschine|Wecker|Skateboard|Luftballon|Klopapier|Gitarre|Mikrowelle'),
+  'Hobbys & Sport': W('Fußball|Schwimmen|Tanzen|Zocken|Reiten|Basketball|Kochen|Angeln|Klettern|Skifahren|Tennis|Joggen|Malen|Yoga|Boxen|Skaten|Shoppen|Lesen|Bowling|Karaoke|Volleyball|Schach|Surfen|Minigolf')
+};
+const STIRN = {
+  'Promis & Figuren': W('SpongeBob|Harry Potter|Pikachu|Super Mario|Taylor Swift|Cristiano Ronaldo|Lionel Messi|Elsa|Batman|Spider-Man|Shrek|Darth Vader|Barbie|Yoda|Sherlock Holmes|Pippi Langstrumpf|Weihnachtsmann|Albert Einstein|Billie Eilish|Homer Simpson|Minion|Pinocchio|Rotkäppchen|Dracula|Hulk|Tarzan|Mr. Bean|Sonic|Gollum|Wednesday Addams|Nemo|Hermine Granger'),
+  'Filme, Serien & Games': W('Titanic|Der König der Löwen|Stranger Things|Findet Nemo|Toy Story|Star Wars|Die Eiskönigin|Avengers|Jurassic Park|Squid Game|Die Simpsons|Fluch der Karibik|Kevin allein zu Haus|Minecraft|Fortnite|Pokémon|Ice Age|Cars|Ratatouille|Der Herr der Ringe|Mario Kart|Among Us|Die Schlümpfe|Tetris|FIFA|Roblox|Ghostbusters|Paddington|Zoomania|Top Gun'),
+  'Tiere': IMPOSTER['Tiere'],
+  'Pantomime-Aktionen': W('Zähne putzen|Fallschirmspringen|Einen Hund baden|Pizza backen|Selfie machen|Zug verpassen|Achterbahn fahren|Kuh melken|Auf Glatteis laufen|Einen Fisch fangen|Bowling spielen|Zelt aufbauen|Eine Spinne entdecken|Eis essen bei Hitze|Kaugummi unterm Schuh|Mücke jagen|Im Stau stehen|Haare föhnen|Klavier spielen|Elfmeter schießen|Verschlafen|Schneeballschlacht|Schrank aufbauen|Surfen|Zwiebeln schneiden|Mit dem Rad stürzen|Geschenk auspacken|Einparken|Bungee-Jumping|Einen Drachen steigen lassen'),
+  'Berufe': W('Pilot|Koch|Polizist|Lehrerin|Astronaut|Friseurin|Tierärztin|Bäcker|DJ|Influencer|Zauberer|Detektiv|Clown|Fußballtrainer|Gärtner|Müllabfuhr|Bauarbeiter|Ärztin|Pirat|Ritter|YouTuber|Fotografin|Kellner|Busfahrer|Model|Feuerwehr|Imker|Schiedsrichter'),
+  'Alltagsdinge': IMPOSTER['Alltagsdinge']
+};
+const TRUTH = {
+  chill: W('Was war dein peinlichster Moment in der Schule?|Wen hier würdest du mit auf eine einsame Insel nehmen und warum?|Was ist das Kindischste, das du immer noch machst?|Welche App öffnest du am häufigsten?|Was war die dümmste Ausrede, die du je benutzt hast?|Hast du schon mal so getan, als wärst du krank, um nicht in die Schule zu müssen?|Welchen Song hörst du heimlich, würdest es aber nie zugeben?|Wer war dein erster Promi-Schwarm?|Was ist das Seltsamste, das du je gegessen hast?|Was würdest du tun, wenn du einen Tag unsichtbar wärst?|Wovor hast du heimlich Angst?|Was war die schlimmste Frisur, die du je hattest?|Was hast du zuletzt gegoogelt?|Hast du schon mal eine Nachricht an die falsche Person geschickt? Was stand drin?|Was ist dein schlimmstes Koch-Ergebnis?|Wie habt ihr euch hier eigentlich kennengelernt? Erzähl deine Version.|Was ist eine Sache, die hier niemand über dich weiß?|Welche drei Emojis beschreiben dich am besten?|Welchen Promi würdest du gern einen Tag lang treffen?|Was war dein Lieblingsspielzeug als Kind?|Was ist dein nervigster Charakterzug?|Wer hier hat den besten Kleidungsstil?|Was nervt dich an deinen Eltern am meisten?|Was war bisher der beste Tag deines Lebens?|Was würdest du mit einer Million Euro als Erstes kaufen?|Was ist der beste Rat, den du je bekommen hast?|Welche Superkraft hättest du gern und warum?|Was ist dein Lieblingsessen, für das du dich schämst?'),
+  bold: W('Zeig das letzte Foto in deiner Galerie.|Lies deine letzte gesendete Nachricht laut vor.|In wen warst du zuletzt verknallt? Der Anfangsbuchstabe reicht.|Was hast du zuletzt über jemanden hier gedacht, aber nicht gesagt?|Bewerte deinen eigenen Tanzstil von 1 bis 10.|Welchen Spitznamen hattest du früher und hast ihn gehasst?|Zeig deine Bildschirmzeit von gestern.|Hast du schon mal bei einer Arbeit geschummelt? Wie?|Wer hier würde am ehesten deine Geheimnisse ausplaudern?|Was ist das Peinlichste in deinem Suchverlauf, das du zugeben würdest?|Welche Person hier würdest du anrufen, wenn du um 3 Uhr nachts Hilfe brauchst?|Hast du schon mal jemanden absichtlich ignoriert? Wen und warum?')
+};
+const DARE = {
+  chill: W('Sprich die nächsten drei Runden mit einem Akzent deiner Wahl.|Mach 10 Hampelmänner und sing dabei.|Imitiere eine Person hier im Raum. Die anderen raten, wer es ist.|Zeig deinen besten Tanz für 15 Sekunden.|Sag das Alphabet rückwärts, so weit du kommst.|Rede eine Minute wie ein Nachrichtensprecher über deinen Tag.|Mach jeder Person hier ein ehrliches Kompliment.|Sing den Refrain eines Songs, den die Gruppe aussucht.|Trag bis zum Spielende Socken an den Händen.|Mach einen 20-Sekunden-Werbespot für einen Gegenstand im Raum.|Versuch, deinen Ellbogen abzulecken.|Sprich bis zu deiner nächsten Runde nur in Reimen.|Erzähl einen Witz. Wenn keiner lacht, noch einen.|Mach 10 Liegestütze oder 20 Knie-Liegestütze.|Mach Tiergeräusche, die anderen raten das Tier.|Lauf wie ein Model einmal durch den Raum.|Die anderen suchen drei Wörter aus, die du in jeden Satz einbauen musst.|Imitiere eine Lehrkraft, die anderen raten wen.|Sing „Alle meine Entchen“ als Oper.|Halte 30 Sekunden eine Planke.|Gackere wie ein Huhn, bis jemand lacht.|Zeichne mit geschlossenen Augen ein Porträt der Person links von dir.|Mach 30 Sekunden lang alles in Zeitlupe.|Erzähl eine Geschichte, in der jeder hier vorkommt.'),
+  bold: W('Lass die Gruppe dein Profilbild für eine Stunde aussuchen (harmlos!).|Schick einer Person aus deinen Kontakten nur ein Enten-Emoji und erklär nichts.|Ruf jemanden aus deiner Familie an und sing „Happy Birthday“.|Lass jemanden eine Minute lang durch deine Galerie scrollen.|Mach ein Selfie mit deiner dümmsten Grimasse und setz es bis morgen als Sperrbildschirm.|Trink ein Glas Wasser mit einem Schluck Zitronensaft drin.|Lass dir von der Gruppe eine neue Frisur machen, bis das Spiel vorbei ist.|Iss einen Löffel von etwas, das die Gruppe aus der Küche aussucht (nichts Gefährliches!).')
+};
+const MOST = W('in einem Horrorfilm als Erstes sterben?|berühmt werden?|den ganzen Tag im Bett bleiben?|sich im eigenen Wohnort verlaufen?|beim Lachen Getränk aus der Nase prusten?|heimlich ein Haustier nach Hause schmuggeln?|eine Quizshow gewinnen?|24 Stunden ohne Handy überleben?|den Geburtstag von allen hier vergessen?|in einer Zombie-Apokalypse überleben?|beim Elternabend erwähnt werden?|Bundeskanzler werden?|über den eigenen Witz am lautesten lachen?|eine ganze Familienpizza allein essen?|verschlafen und den Bus verpassen?|eine Stunde im Bad brauchen?|einen Tanzwettbewerb gewinnen?|im Kino einschlafen?|ein Selfie mit einem Promi bekommen?|als Erstes heiraten?|Millionär werden?|den Schlüssel im Haus einsperren?|eine Diskussion mit einer Lehrkraft gewinnen?|ein Buch schreiben?|bei Monopoly schummeln?|alleine auf Weltreise gehen?|bei einer Gruselgeschichte schreien?|eine Pflanze vergessen zu gießen, bis sie stirbt?|aus Versehen in einen Gruppenchat schreiben, was nicht für alle war?|eine eigene Band gründen?');
+const WYR = [
+ ['Nie wieder Musik hören','Nie wieder Filme schauen'],['Fliegen können','Unsichtbar sein'],['Immer 10 Minuten zu spät','Immer 1 Stunde zu früh'],['Nur noch Pizza essen','Nie wieder Pizza essen'],
+ ['Mit Tieren reden können','Alle Sprachen sprechen'],['In der Vergangenheit leben','In der Zukunft leben'],['Für immer 12 sein','Sofort 30 sein'],['Samstags Schule haben','Keine Sommerferien'],
+ ['In einem Baumhaus wohnen','In einem U-Boot wohnen'],['Superstark sein','Superschnell sein'],['Gedanken lesen','In die Zukunft sehen'],['Immer singen statt reden','Immer tanzen statt laufen'],
+ ['Berühmt sein','Reich sein'],['Nie mehr Nachrichten schreiben','Nie mehr telefonieren'],['Mit einem Hai schwimmen','Mit einem Bären kuscheln'],['Nie wieder Schokolade','Nie wieder Chips'],
+ ['Deine Eltern lesen deinen Chat','Deine Lehrkraft sieht deinen Suchverlauf'],['Im Dschungel überleben','In der Antarktis überleben'],['Immer nasse Socken','Immer einen Stein im Schuh'],['Nur noch flüstern','Nur noch schreien'],
+ ['Hauptrolle im Horrorfilm','Hauptrolle in einer Liebesschnulze'],['Einen Drachen als Haustier','Ein Einhorn als Haustier'],['Jeden Witz verstehen','Jeden zum Lachen bringen'],['100 Euro jetzt','1000 Euro in fünf Jahren'],
+ ['Ohne Internet leben','Ohne Süßigkeiten leben'],['Unter Wasser atmen','Im Dunkeln sehen'],['1 Stunde zu Fuß zur Schule','10 Minuten mit dem Einrad'],['Jeden Tag dasselbe Outfit','Jeden Tag ein zufälliges Outfit'],
+ ['Ein Jahr lang keine Serien','Ein Jahr lang keine Games'],['Alle sehen deinen Bildschirm','Alle hören deine Gedanken']
+];
+const NEVER = W('einen ganzen Tag im Schlafanzug verbracht.|bei einem Film geweint.|im Unterricht eingeschlafen.|eine Ausrede für vergessene Hausaufgaben erfunden.|eine Nachricht geschrieben und sofort wieder gelöscht.|etwas vom Boden gegessen (5-Sekunden-Regel).|ein Lied jahrelang falsch mitgesungen.|so getan, als würde ich telefonieren, um jemandem auszuweichen.|den Namen von jemandem direkt nach dem Vorstellen vergessen.|eine ganze Staffel an einem Tag geschaut.|vom Fünfer im Schwimmbad gesprungen.|einen Promi in echt getroffen.|ein Geschenk weiterverschenkt.|an einer Tür gedrückt, auf der „Ziehen“ stand.|ein Instrument gespielt.|einen Knochen gebrochen.|um Mitternacht heimlich gegessen.|eine Lehrkraft aus Versehen „Mama“ oder „Papa“ genannt.|so lange gezockt, dass es draußen hell wurde.|einen Spitznamen gehabt, den ich gehasst habe.|mich im Supermarkt verlaufen.|vor dem Spiegel eine Rede oder ein Gespräch geübt.|bei einem Gewinnspiel gewonnen.|im Bus meine Haltestelle verpasst.|beim Versteckspielen so gut versteckt, dass mich keiner gefunden hat.|mir die Haare selbst geschnitten.|einen Zahn beim Essen verloren.|eine Pflanze sterben lassen.|mich in einer Umkleide eingeschlossen.|ein Video von mir gesehen und mich fremdgeschämt.');
+const BOMB = W('Ein Tier|Eine Automarke|Ein Wort mit SCH|Etwas aus dem Kühlschrank|Ein Land in Europa|Ein Fußballverein|Eine App|Ein Wort, das auf -ung endet|Eine Farbe|Ein Vorname mit A|Eine Süßigkeit|Etwas aus dem Klassenzimmer|Ein Superheld|Ein Musikinstrument|Ein Getränk|Ein Beruf|Ein Körperteil|Eine Stadt in Deutschland|Ein Disneyfilm|Ein Wort mit EI|Etwas Rundes|Etwas vom Strand|Eine Sportart|Ein Videospiel|Ein Gemüse|Ein Wort, das sich auf „Haus“ reimt|Eine Pizza-Zutat|Ein Märchen|Ein Hauptstadt|Ein Pokémon|Ein Kleidungsstück|Etwas, das fliegt');
+BOMB[BOMB.indexOf('Ein Hauptstadt')] = 'Eine Hauptstadt';
+const FIVE = W('3 Pizzabeläge|3 Dinge in deinem Rucksack|3 Disney-Figuren|3 Länder mit B|3 Dinge, die fliegen können|3 Gemüsesorten|3 Automarken|3 Sportarten mit Ball|3 Dinge, die klebrig sind|3 Hunderassen|3 Musikinstrumente|3 Fußballer|3 Dinge im Badezimmer|3 Wörter mit Z am Anfang|3 Superhelden|3 Sachen zum Frühstück|3 Apps|3 Brettspiele|3 Märchen|3 Tiere im Zoo|3 Pokémon|3 Eissorten|3 Hauptstädte|3 Dinge, die quietschen|3 Süßigkeiten|3 Berufe mit Uniform|3 Dinge, die rot sind|3 Filme mit Tieren|3 Dinge an Silvester|3 Musiker|3 Gründe, zu spät zu kommen|3 Dinge, die man nicht essen sollte|3 Schulfächer|3 Dinge, die stinken|3 Sachen im Weltraum|3 Insekten|3 Getränke|3 Dinge mit Rädern|3 Comicfiguren|3 Obstsorten');
+const SLF_BASE = W('Stadt|Land|Fluss|Name|Tier|Beruf');
+const SLF_FUN = W('Marke|Essen|Promi|Ausrede fürs Zuspätkommen|Film oder Serie|Etwas im Kinderzimmer|Sportart|Song|Videospiel|Etwas Ekliges|Getränk|Superkraft|Grund für Hausarrest|Etwas, das nicht in den Koffer gehört|Lehrer-Spruch|Körperteil|Pflanze|Hobby|Spitzname für eure Schule|Geräusch');
+const HANG = W('ACHTERBAHN|KAUGUMMI|SCHNEEMANN|TRAMPOLIN|WASSERMELONE|KÜHLSCHRANK|GEBURTSTAG|HAUSAUFGABEN|SCHMETTERLING|ZAHNBÜRSTE|FERNBEDIENUNG|KLASSENFAHRT|SONNENBRILLE|REGENBOGEN|FAULTIER|ASTRONAUT|POPCORN|ZAUBERER|DINOSAURIER|GUMMIBÄRCHEN|WEIHNACHTSMANN|KOPFHÖRER|SKATEBOARD|FLASCHENPOST|SCHATZKARTE|NILPFERD|TASCHENLAMPE|BADEWANNE|ZEITMASCHINE|PYJAMAPARTY|KISSENSCHLACHT|PFANNKUCHEN');
+const TEAMNAMES = W('Die Nudeln|Team Chaos|Die Faultiere|Pommes-Gang|Die Legenden|Team Toast|Couch-Kartoffeln|Die Ninjas|Team Döner|Die Pinguine|Gummibären-Bande|Team Turbo|Die Schnecken|Pizza-Piraten|Team Knallbonbon|Die Waschbären');
+
+/* ideas: [title, description, where in|out|both, prep 0/1, mood chill|action, gameId, 2v2] */
+const IDEAS = [
+ ['Imposter spielen','Einer kennt das geheime Wort nicht und muss bluffen. Läuft gerade auf jedem Schulhof.','in',0,'chill','imposter',0],
+ ['Stirnraten, 2 gegen 2','Handy an die Stirn, das eigene Team erklärt. Wer schafft mehr Begriffe in einer Minute?','both',0,'action','stirn',1],
+ ['Activity-Duell','Erklären, zeichnen oder pantomimisch darstellen. Erstes Team mit 10 Punkten gewinnt.','in',0,'action','activity',1],
+ ['Wahrheit oder Pflicht','Der Klassiker für jeden Abend, mit chilligen und mutigen Karten.','in',0,'chill','wop',0],
+ ['Flaschendrehen','Die digitale Flasche entscheidet, wer als Nächstes eine Frage oder Aufgabe bekommt.','in',0,'chill','flasche',0],
+ ['Würdest du eher …?','Absurde Entscheidungen und hitzige Diskussionen. Perfekt zum Runterkommen.','both',0,'chill','fragen',0],
+ ['Die Bombe','Begriff nennen, Handy weitergeben, hoffen. Wer sie hält, wenn sie explodiert, verliert.','both',0,'action','bombe',0],
+ ['Reaktions-Duell','Handy in die Mitte vom Tisch. Welches Team tippt schneller, wenn es grün wird?','in',0,'action','reaktion',1],
+ ['Vier gewinnt, Team gegen Team','Zwei gegen zwei, abwechselnd ziehen, keine Absprachen erlaubt.','in',0,'chill','vier',1],
+ ['Stadt, Land, Fluss','Mit Spaß-Kategorien wie „Ausrede fürs Zuspätkommen“. Stift und Zettel holen.','in',0,'chill','slf',0],
+ ['Galgenmännchen','Einer denkt sich ein Wort aus, der Rest rät Buchstaben. Kennt jeder aus der Grundschule.','in',0,'chill','galgen',0],
+ ['5-Sekunden-Challenge','Nenne drei Dinge in fünf Sekunden. Klingt leicht, ist es nicht.','both',0,'action','five',1],
+ ['Blind-Verkostung','Einer stellt Chips, Süßes oder Getränke bereit, die anderen raten mit verbundenen Augen. Wer erkennt am meisten?','in',1,'chill',null,0],
+ ['Kissenburg-Wettbau','2 gegen 2: Wer baut in 15 Minuten die stabilste Burg aus Kissen und Decken? Danach wird drin gechillt.','in',0,'action',null,1],
+ ['Mini-Olympiade','Fünf absurde Disziplinen: Socken-Weitwurf, Löffel-Ei-Lauf, Flaschen-Bowling, Papierflieger-Weitflug, Einbeinstand. Mit Punktetabelle.','both',1,'action',null,1],
+ ['Schlechtester-Film-Abend','Sucht den am schlechtesten bewerteten Film, den ihr findet, und macht Bingo-Karten: Explosion, Zeitlupe, dramatischer Tod.','in',1,'chill',null,0],
+ ['Karaoke-Battle','Lyrics-Video aufmachen, 2 gegen 2 singen, das andere Team vergibt Punkte für Show statt Stimme.','in',0,'action',null,1],
+ ['Mörderspiel (Zwinkern)','Jeder zieht einen Zettel, auf einem steht „Mörder“. Er tötet per Zwinkern, die anderen müssen ihn entlarven.','in',0,'chill',null,0],
+ ['Wer bin ich? mit Zetteln','Jeder schreibt eine berühmte Person auf und klebt sie dem Nachbarn auf die Stirn. Nur Ja-Nein-Fragen.','in',0,'chill',null,0],
+ ['Stille Post mit Zeichnen','Einer schreibt einen Satz, der Nächste zeichnet ihn, der Nächste beschreibt die Zeichnung. Am Ende vergleichen.','in',0,'chill',null,0],
+ ['Ich packe meinen Koffer','Jeder wiederholt alles und fügt etwas hinzu. Je absurder die Gegenstände, desto besser.','both',0,'chill',null,0],
+ ['Tanz-Trend nachmachen','Sucht einen aktuellen Dance-Trend aus, übt 20 Minuten und filmt das Ergebnis. Bloopers zählen doppelt.','both',0,'action',null,0],
+ ['Koch-Battle','2 gegen 2 mit denselben Zutaten. Wer macht den besten Toast, Pfannkuchen oder Milchshake? Eltern als Jury.','in',1,'chill',null,1],
+ ['Escape Room selber bauen','Ein Team versteckt Hinweise und Rätsel im Zimmer, das andere muss in 20 Minuten raus. Dann tauschen.','in',1,'action',null,1],
+ ['Krimi-Abend','Jeder bekommt eine Rolle mit Geheimnis. Einer ist der Täter. Am Ende wird abgestimmt.','in',1,'chill',null,0],
+ ['Zeitkapsel','Briefe an euch selbst in fünf Jahren, Fotos und kleine Gegenstände in eine Dose. Verstecken oder vergraben.','both',1,'chill',null,0],
+ ['Papierflieger-Meisterschaft','Wer fliegt am weitesten, wer macht den coolsten Looping? Falt-Anleitungen gibt es online.','both',0,'action',null,0],
+ ['Talentshow','Jeder hat 10 Minuten, um ein „Talent“ vorzubereiten. Je absurder, desto besser. Die anderen sind Jury.','in',0,'action',null,0],
+ ['Teleshopping-Show','Jeder holt einen zufälligen Gegenstand und verkauft ihn in einer 1-Minuten-Show. Wer hätte am meisten verkauft?','in',0,'chill',null,0],
+ ['Gruselgeschichten im Dunkeln','Licht aus, Taschenlampe an. Jeder erzählt einen Satz weiter. Wer zuerst lacht, verliert.','in',0,'chill',null,0],
+ ['Schiffe versenken & Käsekästchen','Karopapier, zwei Stifte, Teams bilden. Wie früher in der Pause.','in',0,'chill',null,1],
+ ['Räuber und Gendarm','2 gegen 2 draußen: Ein Team flieht, das andere fängt und bewacht das Gefängnis. Dann tauschen.','out',0,'action',null,1],
+ ['Sardinen-Verstecken','Einer versteckt sich, wer ihn findet, quetscht sich dazu. Der Letzte sucht als Nächstes.','both',0,'action',null,0],
+ ['Foto-Safari','2 gegen 2 mit Handy: In 30 Minuten 10 Fotos von „roter Haustür“, „Hund mit Pulli“, „lustigem Schild“ und mehr sammeln.','out',0,'action',null,1],
+ ['Schnitzeljagd','Ein Team legt mit Kreide Pfeile und versteckt Hinweise, das andere Team folgt der Spur zum Schatz.','out',1,'action',null,1],
+ ['Wasserschlacht','Wasserbomben oder Wasserpistolen, 2 gegen 2. Nur bei gutem Wetter und mit Wechselklamotten.','out',1,'action',null,1],
+ ['Farben-Picknick','Jeder bringt etwas zu essen in einer ausgelosten Farbe mit. Decke raus, fertig.','out',1,'chill',null,0],
+ ['Kreidebilder','Riesige Straßenbilder malen. Wer schafft eine 3D-Illusion, über die man „springen“ muss?','out',1,'chill',null,0],
+ ['Gummitwist & Hüpfekästchen','Kindheitsklassiker. Ihr werdet euch wundern, wie schwer das plötzlich ist.','out',1,'action',null,0],
+ ['Ochs am Berg','Einer dreht sich um und ruft, die anderen schleichen. Wer sich beim Umdrehen bewegt, muss zurück.','out',0,'action',null,0],
+ ['Versteinern-Fangen','Wer gefangen wird, erstarrt, bis ein Teammitglied ihn durch die Beine krabbelnd befreit.','out',0,'action',null,1],
+ ['Geocaching','App laden und den nächsten versteckten Schatz in eurer Gegend suchen. Echt spannender als gedacht.','out',0,'action',null,0],
+ ['5-Euro-Outfit-Challenge','Jeder hat 5 Euro im Second-Hand-Laden. Wer stellt das verrückteste Outfit zusammen?','out',0,'chill',null,0],
+ ['Sterne gucken','Decken raus, Snacks dazu, Sternbild-App öffnen. Am besten mit „Würdest du eher“-Fragen.','out',0,'chill',null,0],
+ ['Fotostory drehen','In 30 Minuten eine Comic-Fotostory mit dem Handy machen. Thema auslosen: Krimi, Liebe, Weltraum.','both',0,'chill',null,1],
+ ['Spieleabend-Turnier','Vier Spiele von dieser Seite, eine Punktetabelle, und der Sieger bekommt eine selbstgebastelte Trophäe.','in',0,'action',null,1]
+];
+
+/* ================= crew & teams ================= */
+let players = store.get('players');
+if (!Array.isArray(players) || players.length < 2) players = ['Spieler 1','Spieler 2','Spieler 3','Spieler 4'];
+let teams = store.get('teams');
+function validTeams(){
+  if (!teams || !Array.isArray(teams.a) || !Array.isArray(teams.b)) return false;
+  const all = teams.a.concat(teams.b);
+  return all.length === players.length && new Set(all).size === all.length && all.every(i => i>=0 && i<players.length);
+}
+function makeTeams(){
+  const s = shuffle(players.map((_,i)=>i)), half = Math.ceil(s.length/2), n = shuffle(TEAMNAMES);
+  teams = { a:s.slice(0,half), b:s.slice(half), na:n[0], nb:n[1] };
+  store.set('teams', teams);
+}
+function ensureTeams(){ if (!validTeams()) makeTeams(); }
+ensureTeams();
+const tName = t => t==='a' ? teams.na : teams.nb;
+const tMembers = t => teams[t].map(i => players[i] || '?');
+const other = t => t==='a' ? 'b' : 'a';
+function turnInfo(turn){
+  const t = turn%2===0 ? 'a' : 'b', m = tMembers(t), k = Math.floor(turn/2) % m.length;
+  return { t, actor:m[k], mates:m.filter((_,i)=>i!==k) };
+}
+function savePlayers(){ store.set('players', players); }
+
+function renderCrew(){
+  const list = $('#plist'); list.replaceChildren();
+  players.forEach((p,i) => {
+    const inp = h('input',{id:'p'+i,type:'text',value:p,maxlength:'18','aria-label':`Name von Person ${i+1}`,autocomplete:'off'});
+    inp.addEventListener('input', () => { players[i] = inp.value.trim() || `Spieler ${i+1}`; savePlayers(); renderTeams(); });
+    const del = h('button',{type:'button','aria-label':`${p} entfernen`, onclick:() => {
+      if (players.length<=2) return; players.splice(i,1); savePlayers(); makeTeams(); renderCrew();
+    }}, '×');
+    list.append(h('div',{class:'pin'}, inp, players.length>2 ? del : null));
+  });
+  $('#addP').disabled = players.length >= 10;
+  renderTeams();
+}
+function renderTeams(){
+  ensureTeams();
+  $('#teams').replaceChildren(
+    h('div',{class:'team a'}, h('b',null,teams.na), h('span',null, joinNames(tMembers('a')))),
+    h('div',{class:'team b'}, h('b',null,teams.nb), h('span',null, joinNames(tMembers('b'))))
+  );
+}
+$('#addP').onclick = () => { if (players.length>=10) return; players.push(`Spieler ${players.length+1}`); savePlayers(); makeTeams(); renderCrew(); const last=$('#p'+(players.length-1)); last && last.select(); };
+$('#mixTeams').onclick = () => { makeTeams(); renderTeams(); tone(520,.08); };
+$('#whoStarts').onclick = () => {
+  const el = $('#starter'); let n = 0; const target = pick(players);
+  const id = setInterval(() => {
+    el.textContent = pick(players); tone(400+n*30,.03);
+    if (++n > 14){ clearInterval(id); el.textContent = `${target} fängt an!`; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); yay(); }
+  }, 70);
+};
+
+/* ================= ideas ================= */
+const F = { w:'all', p:'all', e:'all' };
+const LBL = { in:'Drinnen', out:'Draußen', both:'Drinnen & draußen', chill:'Chillig', action:'Action' };
+function ideaOk(i){
+  return (F.w==='all' || i[2]==='both' || i[2]===F.w) && (F.p==='all' || String(i[3])===F.p) && (F.e==='all' || i[4]===F.e);
+}
+function renderFilters(){
+  const grp = (label, key, opts) => h('div',{class:'frow'}, h('b',null,label), h('div',{class:'chips'}, opts.map(([v,l]) =>
+    h('button',{type:'button',class:'chip','aria-pressed':String(F[key]===v), onclick:() => { F[key]=v; renderFilters(); renderList(); roll(true); }}, l))));
+  $('#filters').replaceChildren(
+    grp('Wo?','w',[['all','Egal'],['in','Drinnen'],['out','Draußen']]),
+    grp('Vorbereitung?','p',[['all','Egal'],['0','Sofort los'],['1','Darf dauern']]),
+    grp('Stimmung?','e',[['all','Egal'],['chill','Chillig'],['action','Action']])
+  );
+  const n = IDEAS.filter(ideaOk).length;
+  $('#count').textContent = n ? `${n} Ideen passen gerade.` : 'Nichts passt. Lockert einen Filter.';
+}
+function ideaTags(i){
+  return [LBL[i[2]], i[3] ? 'Etwas Vorbereitung' : 'Sofort los', LBL[i[4]], i[6] ? '2 gegen 2' : null, i[5] ? 'Hier spielbar' : null].filter(Boolean);
+}
+let lastIdea = null;
+function roll(quiet){
+  const pool = IDEAS.filter(ideaOk), card = $('#idea');
+  let i = pool.length ? pick(pool) : null;
+  if (i && pool.length > 1) while (i === lastIdea) i = pick(pool);
+  lastIdea = i;
+  card.replaceChildren(
+    h('p',{class:'kicker'}, 'Eure Idee'),
+    h('h2',null, i ? i[0] : 'Keine Idee passt'),
+    h('p',{class:'desc'}, i ? i[1] : 'Mit diesen Filtern gibt es nichts. Stellt einen Filter auf „Egal“.'),
+    i ? h('div',{class:'tags'}, ideaTags(i).map(t => h('span',{class:'tag'},t))) : null,
+    h('div',{class:'acts'},
+      h('button',{type:'button',class:'btn tomato',onclick:() => roll()}, 'Neue Idee würfeln'),
+      i && i[5] ? h('button',{type:'button',class:'btn',onclick:() => openGame(i[5])}, 'Spiel starten') : null)
+  );
+  if (!quiet){ card.classList.remove('flip'); void card.offsetWidth; card.classList.add('flip'); tone(300+rand(400),.06); }
+}
+function renderList(){
+  const pool = IDEAS.filter(ideaOk);
+  $('#ilist').replaceChildren(...pool.map(i => h('article',{class:'icard'},
+    h('h3',null,i[0]), h('p',null,i[1]),
+    h('div',{class:'tags'}, ideaTags(i).map(t => h('span',{class:'tag'},t))),
+    i[5] ? h('button',{type:'button',class:'btn small',onclick:() => openGame(i[5])},'Spiel starten') : null)));
+  if (!pool.length) $('#ilist').append(h('p',{class:'note'},'Keine Ideen mit diesen Filtern.'));
+}
+
+/* ================= game shell ================= */
+const overlay = $('#game'), gBody = $('#gBody');
+let timers = [], onKey = null, wakeLock = null, current = null;
+function later(fn, ms){ const id = setTimeout(fn, ms); timers.push(() => clearTimeout(id)); return id; }
+function clearTimers(){ timers.forEach(f => f()); timers = []; }
+function screen(...kids){ clearTimers(); onKey = null; gBody.classList.remove('flush'); gBody.replaceChildren(...kids); gBody.scrollTop = 0; }
+const stage = (...k) => h('div',{class:'stage'}, ...k);
+const cstage = (...k) => h('div',{class:'stage center'}, ...k);
+const intro = t => h('p',{class:'lead'}, t);
+const field = (label, ctl) => h('div',{class:'field'}, h('span',null,label), ctl);
+function chips(opts, cur, onPick){
+  return h('div',{class:'chips'}, opts.map(o => { const [v,l] = Array.isArray(o) ? o : [o,o];
+    return h('button',{type:'button',class:'chip','aria-pressed':String(v===cur), onclick:() => onPick(v)}, l); }));
+}
+function teamsBox(){
+  return h('div',{class:'teams'},
+    h('div',{class:'team a'}, h('b',null,teams.na), h('span',null,joinNames(tMembers('a')))),
+    h('div',{class:'team b'}, h('b',null,teams.nb), h('span',null,joinNames(tMembers('b')))));
+}
+function scoreboard(sc, active, target){
+  const pill = t => {
+    const kids = [h('b',null,tName(t)), h('strong',null,sc[t])];
+    if (target) kids.push(h('div',{class:'track'}, h('i',{style:`width:${Math.min(100, sc[t]/target*100)}%`})));
+    return h('div',{class:`spill ${t} ${active===t||!active?'on':''} ${target?'withtrack':''}`}, ...kids);
+  };
+  return h('div',{class:'score'}, pill('a'), pill('b'));
+}
+function countdown(sec, onTick, onEnd){
+  const end = Date.now() + sec*1000; let last = sec, done = false;
+  onTick(sec);
+  const id = setInterval(() => {
+    const left = Math.max(0, Math.ceil((end-Date.now())/1000));
+    if (left !== last){ last = left; onTick(left); if (left<=5 && left>0) tone(520,.07); }
+    if (left<=0 && !done){ done = true; clearInterval(id); tone(160,.6,'sawtooth',.07); buzz(300); onEnd(); }
+  }, 100);
+  timers.push(() => clearInterval(id));
+  return () => { done = true; clearInterval(id); };
+}
+function timerBar(sec){ const b = h('div',{class:'tbar',style:`--dur:${sec}s`}, h('i')); return b; }
+function count321(then){
+  const n = h('div',{class:'mega pop',style:'font-size:clamp(6rem,30vw,12rem)'},'3');
+  screen(cstage(h('p',{class:'kicker'},'Gleich geht’s los'), n));
+  tone(440,.1);
+  later(() => { n.textContent='2'; n.classList.remove('pop'); void n.offsetWidth; n.classList.add('pop'); tone(440,.1); }, 800);
+  later(() => { n.textContent='1'; n.classList.remove('pop'); void n.offsetWidth; n.classList.add('pop'); tone(440,.1); }, 1600);
+  later(() => { tone(880,.2); then(); }, 2400);
+}
+function winScreen(t, extra, again){
+  yay(); later(yay, 300);
+  screen(cstage(
+    h('p',{class:'kicker'},'Spiel vorbei'),
+    h('div',{class:`card c-${t==='a'?'tomato':'sky'} pop`}, h('p',{class:'big2'}, `${tName(t)} gewinnt!`), h('p',{class:'lead',style:'margin:10px auto 0'}, joinNames(tMembers(t)))),
+    extra || null,
+    h('div',{class:'rowx'}, h('button',{type:'button',class:'btn',onclick:again},'Nochmal spielen'), h('button',{type:'button',class:'btn ghost',onclick:closeGame},'Zurück zur Übersicht'))
+  ));
+}
+
+function openGame(id){
+  const g = GAMES.find(x => x.id === id); if (!g) return;
+  current = g; ensureTeams();
+  overlay.style.setProperty('--gc', `var(--${g.color})`);
+  $('#gTitle').textContent = g.name;
+  overlay.hidden = false; document.documentElement.style.overflow = 'hidden';
+  try{ navigator.wakeLock && navigator.wakeLock.request('screen').then(l => wakeLock = l).catch(() => {}); }catch(e){}
+  audio();
+  g.run();
+  $('#gBack').focus();
+}
+function closeGame(){
+  clearTimers(); onKey = null; overlay.hidden = true; document.documentElement.style.overflow = '';
+  gBody.replaceChildren(); current = null;
+  try{ wakeLock && wakeLock.release(); }catch(e){} wakeLock = null;
+}
+$('#gBack').onclick = closeGame;
+function renderSound(){ const b=$('#gSound'); b.textContent = muted ? 'Ton aus' : 'Ton an'; b.setAttribute('aria-pressed', String(!muted)); }
+$('#gSound').onclick = () => { muted = !muted; store.set('muted', muted); renderSound(); if(!muted) tone(660,.08); };
+renderSound();
+document.addEventListener('keydown', e => {
+  if (overlay.hidden) return;
+  if (e.key === 'Escape'){ closeGame(); return; }
+  if (onKey && !(e.target && e.target.tagName === 'INPUT')) onKey(e);
+});
+
+/* ================= games ================= */
+
+/* --- Imposter --- */
+function gImposter(){
+  let cat = 'Alles', imps = 1, hint = true;
+  const cats = Object.keys(IMPOSTER);
+  function setup(){
+    if (imps > 1 && players.length < 5) imps = 1;
+    screen(stage(
+      intro('Alle sehen nacheinander geheim dasselbe Wort, nur der Imposter nicht. Reihum sagt jeder ein Wort, das dazu passt. Nicht zu offensichtlich, sonst weiß der Imposter Bescheid! Danach zeigt ihr gleichzeitig auf euren Verdacht.'),
+      players.length < 3 ? h('div',{class:'card c-sun'}, 'Imposter braucht mindestens drei Leute. Tragt unter „Eure Crew“ noch jemanden ein.') : null,
+      field('Kategorie', chips(['Alles', ...cats], cat, v => { cat=v; setup(); })),
+      field('Anzahl Imposter', chips([[1,'1 Imposter'],[2,'2 Imposter (ab 5 Leuten)']], imps, v => { if (v===2 && players.length<5) return; imps=v; setup(); })),
+      field('Hilfe für den Imposter', chips([[true,'Kategorie verraten'],[false,'Keine Hilfe']], hint, v => { hint=v; setup(); })),
+      h('p',{class:'note'}, `Es spielen: ${joinNames(players)}`),
+      h('button',{type:'button',class:'btn big tomato',disabled:players.length<3,onclick:round}, 'Rollen verteilen')
+    ));
+  }
+  function round(){
+    const pool = cat==='Alles' ? cats.flatMap(c => IMPOSTER[c].map(w => [w,c])) : IMPOSTER[cat].map(w => [w,cat]);
+    const [word, wc] = pick(pool);
+    const imp = new Set(shuffle(players.map((_,i)=>i)).slice(0, imps));
+    const starter = rand(players.length);
+    const pass = i => {
+      if (i >= players.length) return done();
+      screen(cstage(
+        h('p',{class:'kicker'}, `Person ${i+1} von ${players.length}`),
+        h('p',{class:'lead'}, 'Gib das Handy an'),
+        h('div',{class:'mega pop'}, players[i]),
+        h('p',{class:'note'}, 'Alle anderen schauen weg!'),
+        h('button',{type:'button',class:'btn big',onclick:() => reveal(i)}, `Ich bin ${players[i]}, zeig meine Rolle`)
+      ));
+    };
+    const reveal = i => {
+      const isImp = imp.has(i);
+      tone(isImp ? 200 : 700, .12);
+      screen(cstage(
+        isImp
+          ? h('div',{class:'card c-tomato pop'}, h('p',{class:'kicker',style:'color:var(--on)'},'Psst, geheim'), h('p',{class:'mega'},'Du bist der Imposter'),
+              h('p',{class:'lead',style:'margin:14px auto 0'}, hint ? `Kategorie: ${wc}. Hör gut zu und bluffe dich durch.` : 'Keine Hilfe. Hör gut zu und bluffe dich durch.'))
+          : h('div',{class:'card pop'}, h('p',{class:'kicker'},'Das geheime Wort'), h('p',{class:'mega'}, word), h('p',{class:'note',style:'margin-top:12px'}, `Kategorie: ${wc}`)),
+        h('button',{type:'button',class:'btn big ghost',onclick:() => pass(i+1)}, 'Verstanden, verstecken und weitergeben')
+      ));
+    };
+    const done = () => {
+      screen(cstage(
+        h('p',{class:'kicker'},'Alle kennen ihre Rolle'),
+        h('div',{class:'big2'}, `${players[starter]} fängt an.`),
+        intro('Reihum sagt jeder ein Wort zum Begriff. Macht zwei Runden. Dann zählt ihr bis drei und zeigt gleichzeitig auf euren Verdacht.'),
+        h('p',{class:'note'}, 'Wird der Imposter erwischt, darf er noch das Wort raten. Liegt er richtig, gewinnt er trotzdem.'),
+        h('button',{type:'button',class:'btn big tomato',onclick:solve}, 'Auflösen')
+      ));
+    };
+    const solve = () => {
+      yay();
+      screen(cstage(
+        h('p',{class:'kicker'}, imps>1 ? 'Die Imposter waren' : 'Der Imposter war'),
+        h('div',{class:'card c-tomato pop'}, h('p',{class:'mega'}, joinNames([...imp].map(i => players[i])))),
+        h('p',{class:'lead'}, 'Das Wort war'),
+        h('div',{class:'big2'}, word),
+        h('div',{class:'rowx'}, h('button',{type:'button',class:'btn tomato',onclick:round},'Neue Runde'), h('button',{type:'button',class:'btn ghost',onclick:setup},'Einstellungen'))
+      ));
+    };
+    pass(0);
+  }
+  setup();
+}
+
+/* --- Stirnraten --- */
+function gStirn(){
+  const cats = Object.keys(STIRN);
+  let cat = 'Mix', time = 60, turn = 0, sc = {a:0,b:0}, next;
+  const rebuild = () => { next = deck(cat==='Mix' ? cats.flatMap(c => STIRN[c]) : STIRN[cat]); };
+  rebuild();
+  function setup(){
+    screen(stage(
+      intro('Eine Person hält das Handy mit dem Display nach außen an die Stirn. Das eigene Team erklärt den Begriff, ohne ihn zu sagen. Erraten: „Richtig“. Zu schwer: „Weiter“. Dann ist das andere Team dran.'),
+      field('Kategorie', chips(['Mix', ...cats], cat, v => { cat=v; rebuild(); setup(); })),
+      field('Zeit pro Runde', chips([[45,'45 Sek.'],[60,'60 Sek.'],[90,'90 Sek.']], time, v => { time=v; setup(); })),
+      teamsBox(),
+      h('button',{type:'button',class:'btn big',onclick:pre}, 'Los geht’s')
+    ));
+  }
+  function pre(){
+    const ti = turnInfo(turn);
+    screen(cstage(
+      scoreboard(sc, ti.t),
+      h('p',{class:'kicker'}, `Runde ${Math.floor(turn/2)+1} · ${tName(ti.t)}`),
+      h('div',{class:'mega pop'}, ti.actor),
+      intro(`hält das Handy an die Stirn. ${ti.mates.length ? joinNames(ti.mates) + (ti.mates.length>1?' erklären.':' erklärt.') : 'Alle anderen erklären.'} Tipp: Handy quer halten.`),
+      h('button',{type:'button',class:'btn big',onclick:() => count321(play)}, 'Countdown starten'),
+      turn>0 ? h('button',{type:'button',class:'btn ghost',onclick:finish}, 'Spiel beenden') : null
+    ));
+  }
+  function play(){
+    const got = []; let cur = next();
+    const word = h('div',{class:'mega'}, cur), tEl = h('div',{class:'timer'}, time), box = h('div',{class:'wordbox card'}, word);
+    const adv = ok => {
+      got.push({w:cur, ok}); ok ? tone(880,.12) : tone(240,.1);
+      box.classList.remove('flash-ok','flash-no'); void box.offsetWidth; box.classList.add(ok?'flash-ok':'flash-no');
+      cur = next(); word.textContent = cur;
+    };
+    screen(h('div',{class:'stirn'},
+      h('div',{class:'rowx',style:'justify-content:space-between;align-items:center'}, tEl, h('p',{class:'kicker'}, tName(turnInfo(turn).t))),
+      timerBar(time), box,
+      h('div',{class:'row2'},
+        h('button',{type:'button',class:'btn',onclick:() => adv(false)}, 'Weiter'),
+        h('button',{type:'button',class:'btn mint',onclick:() => adv(true)}, 'Richtig!'))
+    ));
+    onKey = e => { if (e.key==='ArrowRight'||e.key===' ') adv(true); if (e.key==='ArrowLeft') adv(false); };
+    countdown(time, s => { tEl.textContent = s; }, () => result(got));
+  }
+  function result(got){
+    const ti = turnInfo(turn), pts = got.filter(g => g.ok).length;
+    sc[ti.t] += pts; turn++;
+    if (pts) yay();
+    screen(cstage(
+      h('p',{class:'kicker'}, 'Zeit um!'),
+      h('div',{class:'big2 pop'}, `${tName(ti.t)}: +${pts} ${pts===1?'Punkt':'Punkte'}`),
+      got.length ? h('div',{class:'reslist'}, got.map(g => h('span',{class:g.ok?'ok':'no'}, g.w))) : h('p',{class:'note'},'Keine Begriffe. Nächstes Mal schneller tippen!'),
+      scoreboard(sc, null),
+      h('button',{type:'button',class:'btn big',onclick:pre}, `Weiter mit ${tName(turnInfo(turn).t)}`),
+      h('button',{type:'button',class:'btn ghost',onclick:finish}, 'Spiel beenden')
+    ));
+  }
+  function finish(){
+    const again = () => { turn=0; sc={a:0,b:0}; setup(); };
+    if (sc.a === sc.b){
+      screen(cstage(h('p',{class:'kicker'},'Spiel vorbei'), h('div',{class:'big2'},`Unentschieden, ${sc.a} zu ${sc.b}!`), scoreboard(sc,null),
+        h('div',{class:'rowx'}, h('button',{type:'button',class:'btn',onclick:again},'Nochmal spielen'), h('button',{type:'button',class:'btn ghost',onclick:closeGame},'Zurück'))));
+    } else winScreen(sc.a>sc.b?'a':'b', scoreboard(sc,null), again);
+  }
+  setup();
+}
+
+/* --- Activity --- */
+function gActivity(){
+  const MODES = [['Erklären',1,'sky'],['Zeichnen',2,'mint'],['Pantomime',2,'pink']];
+  const words = { Erklären: deck([...STIRN['Promis & Figuren'], ...STIRN['Filme, Serien & Games'], ...STIRN['Berufe'], ...IMPOSTER['Orte']]),
+                  Zeichnen: deck([...IMPOSTER['Tiere'], ...IMPOSTER['Alltagsdinge'], ...IMPOSTER['Essen'], ...W('Leuchtturm|Schneemann|Vulkan|Rakete|Burg|Regenbogen|Achterbahn|Schatzkiste|Einhorn|Roboter|Gespenst|Kaktus')]),
+                  Pantomime: deck([...STIRN['Pantomime-Aktionen'], ...IMPOSTER['Hobbys & Sport']]) };
+  let target = 10, time = 60, turn = 0, sc = {a:0,b:0}, modePick = 'Zufall';
+  function setup(){
+    screen(stage(
+      intro('Ein Teammitglied erklärt, zeichnet oder spielt pantomimisch einen Begriff vor. Das eigene Team rät. Erklären bringt 1 Punkt, Zeichnen und Pantomime 2 Punkte.'),
+      field('Spiel bis', chips([[6,'6 Punkte'],[10,'10 Punkte'],[15,'15 Punkte']], target, v => { target=v; setup(); })),
+      field('Zeit', chips([[45,'45 Sek.'],[60,'60 Sek.'],[90,'90 Sek.']], time, v => { time=v; setup(); })),
+      field('Darstellung', chips(['Zufall', ...MODES.map(m=>m[0])], modePick, v => { modePick=v; setup(); })),
+      teamsBox(),
+      h('button',{type:'button',class:'btn big sky',onclick:pre}, 'Los geht’s')
+    ));
+  }
+  function pre(){
+    const ti = turnInfo(turn);
+    const mode = modePick==='Zufall' ? pick(MODES) : MODES.find(m => m[0]===modePick);
+    screen(cstage(
+      scoreboard(sc, ti.t, target),
+      h('p',{class:'kicker'}, tName(ti.t)),
+      h('div',{class:'mega pop'}, ti.actor),
+      h('div',{class:`card c-${mode[2]}`}, h('p',{class:'big2'}, `${mode[0]} · ${mode[1]} ${mode[1]===1?'Punkt':'Punkte'}`)),
+      intro(`Nur ${ti.actor} schaut jetzt aufs Handy.`),
+      h('button',{type:'button',class:'btn big',onclick:() => show(ti, mode)}, 'Begriff anzeigen')
+    ));
+  }
+  function show(ti, mode){
+    const w = words[mode[0]]();
+    screen(cstage(
+      h('p',{class:'kicker'}, `${mode[0]}: dein Begriff`),
+      h('div',{class:'card pop'}, h('p',{class:'mega'}, w)),
+      h('button',{type:'button',class:'btn big mint',onclick:() => play(ti, mode, w)}, `Uhr starten (${time} Sek.)`),
+      h('button',{type:'button',class:'btn ghost',onclick:() => show(ti, mode)}, 'Anderer Begriff')
+    ));
+  }
+  function play(ti, mode, w){
+    const tEl = h('div',{class:'timer'}, time);
+    const wordEl = h('span',{class:'hidden-word'}, w);
+    const peek = h('button',{type:'button',class:'btn small ghost',onclick:() => wordEl.classList.toggle('hidden-word')}, 'Begriff zeigen / verstecken');
+    let pad = null;
+    if (mode[0]==='Zeichnen') pad = drawPad();
+    const btns = h('div',{class:'row2'},
+      h('button',{type:'button',class:'btn',onclick:() => end(false)}, 'Nicht geschafft'),
+      h('button',{type:'button',class:'btn mint',onclick:() => end(true)}, 'Erraten!'));
+    screen(stage(
+      h('div',{class:'rowx',style:'justify-content:space-between;align-items:center'}, tEl, h('p',{class:'kicker'}, `${ti.actor} · ${mode[0]}`)),
+      timerBar(time),
+      h('div',{class:'rowx',style:'justify-content:flex-start;align-items:center'}, peek, h('b',{style:'font-size:1.2rem'}, wordEl)),
+      pad ? pad.el : h('div',{class:`card c-${mode[2]}`,style:'text-align:center'}, h('p',{class:'big2'}, mode[0]==='Erklären' ? 'Erklär los! Das Wort selbst ist verboten.' : 'Nur Gesten, kein Ton!')),
+      pad ? h('button',{type:'button',class:'btn small ghost',style:'align-self:flex-start',onclick:pad.clear}, 'Zeichnung löschen') : null,
+      btns
+    ));
+    if (pad) pad.init();
+    countdown(time, s => { tEl.textContent = s; }, () => {
+      btns.replaceChildren(
+        h('button',{type:'button',class:'btn',onclick:() => end(false)}, 'Zeit um, nicht geschafft'),
+        h('button',{type:'button',class:'btn mint',onclick:() => end(true)}, 'Doch erraten!'));
+      tEl.textContent = 'Zeit!';
+    });
+    function end(ok){
+      if (ok){ sc[ti.t] += mode[1]; yay(); } else tone(200,.2);
+      turn++;
+      if (sc[ti.t] >= target) return winScreen(ti.t, scoreboard(sc,null,target), () => { sc={a:0,b:0}; turn=0; setup(); });
+      screen(cstage(
+        h('div',{class:'big2 pop'}, ok ? `+${mode[1]} für ${tName(ti.t)}!` : 'Leider nicht.'),
+        h('p',{class:'lead'}, `Der Begriff war: ${w}`),
+        scoreboard(sc, null, target),
+        h('button',{type:'button',class:'btn big',onclick:pre}, `Weiter mit ${tName(turnInfo(turn).t)}`)
+      ));
+    }
+  }
+  setup();
+}
+function drawPad(){
+  const c = h('canvas',{class:'pad','aria-label':'Zeichenfläche'}); const ctx = c.getContext('2d');
+  let down = false, last = null;
+  const pt = e => { const r = c.getBoundingClientRect(); return { x:e.clientX-r.left, y:e.clientY-r.top }; };
+  function init(){
+    const r = c.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+    c.width = Math.round(r.width*d); c.height = Math.round(r.height*d);
+    ctx.setTransform(d,0,0,d,0,0); ctx.lineCap='round'; ctx.lineJoin='round'; ctx.lineWidth=5; ctx.strokeStyle='#171B38'; ctx.fillStyle='#171B38';
+  }
+  c.addEventListener('pointerdown', e => { e.preventDefault(); down = true; try{ c.setPointerCapture(e.pointerId); }catch(x){} last = pt(e); ctx.beginPath(); ctx.arc(last.x,last.y,2.5,0,Math.PI*2); ctx.fill(); });
+  c.addEventListener('pointermove', e => { if (!down) return; const p = pt(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last = p; });
+  const up = () => { down = false; };
+  c.addEventListener('pointerup', up); c.addEventListener('pointercancel', up); c.addEventListener('pointerleave', up);
+  return { el:c, init:() => requestAnimationFrame(init), clear:() => { ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,c.width,c.height); ctx.restore(); } };
+}
+
+/* --- Wahrheit oder Pflicht (shared decks) --- */
+let level = 'chill';
+const decks = {};
+function card(kind){
+  const key = kind+level;
+  if (!decks[key]){ const src = kind==='w' ? TRUTH : DARE; decks[key] = deck(level==='chill' ? src.chill : [...src.chill, ...src.bold]); }
+  return decks[key]();
+}
+function gWop(){
+  let turn = rand(players.length);
+  function who(){
+    const p = players[turn % players.length];
+    screen(cstage(
+      field('Stufe', chips([['chill','Chillig'],['bold','Mutig']], level, v => { level=v; who(); })),
+      h('p',{class:'kicker'}, 'Dran ist'),
+      h('div',{class:'mega pop'}, p),
+      h('div',{class:'row2'},
+        h('button',{type:'button',class:'btn big sky',onclick:() => show(p,'w')}, 'Wahrheit'),
+        h('button',{type:'button',class:'btn big tomato',onclick:() => show(p,'p')}, 'Pflicht')),
+      h('p',{class:'note'}, 'Jeder hat einen Joker pro Spiel, um eine Karte zu tauschen.')
+    ));
+  }
+  function show(p, kind){
+    tone(kind==='w'?620:420,.12);
+    screen(cstage(
+      h('p',{class:'kicker'}, `${p} · ${kind==='w'?'Wahrheit':'Pflicht'}`),
+      h('div',{class:`card ${kind==='w'?'c-sky':'c-tomato'} pop`}, h('p',{class:'big2'}, card(kind))),
+      h('div',{class:'rowx'},
+        h('button',{type:'button',class:'btn',onclick:() => { turn++; who(); }}, 'Nächste Person'),
+        h('button',{type:'button',class:'btn ghost',onclick:() => show(p, kind)}, 'Joker: andere Karte'))
+    ));
+  }
+  who();
+}
+
+/* --- Fragenrunde --- */
+function gFragen(){
+  let mode = 'most';
+  const dm = deck(MOST), dw = deck(WYR), dn = deck(NEVER);
+  const fingers = players.map(() => 10), titles = players.map(() => 0);
+  function render(){
+    const tabs = chips([['most','Wer würde eher …?'],['wyr','Würdest du eher …?'],['never','Ich hab noch nie …']], mode, v => { mode=v; render(); });
+    let body;
+    if (mode==='most'){
+      const q = dm();
+      body = [
+        h('div',{class:'card c-mint pop'}, h('p',{class:'kicker',style:'color:var(--on)'},'Wer würde eher …'), h('p',{class:'big2'}, q)),
+        h('p',{class:'note'}, 'Auf drei zeigen alle gleichzeitig auf eine Person. Wer die meisten Finger abbekommt, holt sich den Titel. Tippt den Namen an:'),
+        h('div',{class:'fingers'}, players.map((p,i) => h('button',{type:'button',onclick:() => { titles[i]++; tone(700,.08); render(); }}, p, h('strong',null,titles[i])))),
+      ];
+    } else if (mode==='wyr'){
+      const [a,b] = dw(); let va = 0, vb = 0;
+      const ca = h('small',null,'0 Stimmen'), cb = h('small',null,'0 Stimmen');
+      body = [
+        h('p',{class:'kicker'},'Würdest du eher …'),
+        h('div',{class:'wyr pop'},
+          h('button',{type:'button',class:'bg-sky',onclick:() => { va++; ca.textContent = `${va} ${va===1?'Stimme':'Stimmen'}`; tone(600,.06); }}, a, ca),
+          h('span',{class:'or'},'oder'),
+          h('button',{type:'button',class:'bg-tomato',onclick:() => { vb++; cb.textContent = `${vb} ${vb===1?'Stimme':'Stimmen'}`; tone(450,.06); }}, b, cb)),
+        h('p',{class:'note'}, 'Jeder tippt auf seine Wahl. Die Minderheit muss ihre Entscheidung verteidigen.')
+      ];
+    } else {
+      const q = dn();
+      body = [
+        h('div',{class:'card c-pink pop'}, h('p',{class:'kicker',style:'color:var(--on)'},'Ich hab noch nie …'), h('p',{class:'big2'}, q)),
+        h('p',{class:'note'}, 'Jeder startet mit 10 Fingern. Wer es schon mal gemacht hat, tippt auf seinen Namen und verliert einen Finger.'),
+        h('div',{class:'fingers'}, players.map((p,i) => h('button',{type:'button',class:fingers[i]<=0?'out':'',onclick:(e) => {
+          if (fingers[i] <= 0) return; fingers[i]--; tone(300,.08);
+          e.currentTarget.querySelector('strong').textContent = fingers[i];
+          if (fingers[i] <= 0) e.currentTarget.classList.add('out');
+        }}, p, h('strong',null,fingers[i])))),
+        h('button',{type:'button',class:'btn small ghost',style:'align-self:center',onclick:() => { fingers.fill(10); render(); }}, 'Alle Finger zurücksetzen')
+      ];
+    }
+    screen(stage(tabs, ...body, h('button',{type:'button',class:'btn big mint',onclick:render}, 'Nächste Frage')));
+    onKey = e => { if (e.key===' '||e.key==='ArrowRight'){ e.preventDefault(); render(); } };
+  }
+  render();
+}
+
+/* --- Flaschendrehen --- */
+function gFlasche(){
+  let rot = 0, spinning = false;
+  const n = players.length, step = 360/n;
+  const labels = players.map((p,i) => {
+    const a = i*step*Math.PI/180;
+    return h('div',{class:'pname',style:`left:${50+41*Math.sin(a)}%;top:${50-41*Math.cos(a)}%`}, p);
+  });
+  const bottle = h('div',{class:'bottle'});
+  bottle.innerHTML = '<svg viewBox="0 0 60 200" aria-hidden="true"><path d="M24 4h12v8h-1v40c0 12 17 20 17 44v90q0 10-10 10H18q-10 0-10-10V96c0-24 17-32 17-44V12h-1z" fill="#23C49B" fill-opacity=".85" stroke="#171B38" stroke-width="4" stroke-linejoin="round"/><rect x="12" y="118" width="36" height="40" rx="4" fill="#FFC83D" stroke="#171B38" stroke-width="3"/><path d="M17 100v70" stroke="#fff" stroke-opacity=".6" stroke-width="4" stroke-linecap="round"/></svg>';
+  const panel = h('div',{class:'stage center'});
+  const spinBtn = h('button',{type:'button',class:'btn big',onclick:spin}, 'Flasche drehen');
+  screen(stage(
+    h('div',{class:'spinwrap'}, h('div',{class:'ring'}), ...labels, bottle),
+    spinBtn, panel
+  ));
+  onKey = e => { if (e.key===' '){ e.preventDefault(); spin(); } };
+  function spin(){
+    if (spinning) return; spinning = true; spinBtn.disabled = true;
+    labels.forEach(l => l.classList.remove('hit')); panel.replaceChildren();
+    const target = rand(n), jitter = (Math.random()-.5) * step * .5;
+    const want = ((target*step + jitter) % 360 + 360) % 360;
+    const curMod = ((rot % 360) + 360) % 360;
+    rot += 360*(4+rand(3)) + ((want - curMod + 360) % 360);
+    bottle.style.transform = `rotate(${rot}deg)`;
+    for (let k=0;k<14;k++) later(() => tone(300+k*25,.03), k*k*16);
+    later(() => {
+      spinning = false; spinBtn.disabled = false;
+      labels[target].classList.add('hit'); yay();
+      const p = players[target];
+      panel.replaceChildren(
+        h('div',{class:'big2 pop'}, `${p} ist dran!`),
+        h('div',{class:'row2'},
+          h('button',{type:'button',class:'btn sky',onclick:() => showCard(p,'w')}, 'Wahrheit'),
+          h('button',{type:'button',class:'btn tomato',onclick:() => showCard(p,'p')}, 'Pflicht'))
+      );
+    }, 3500);
+  }
+  function showCard(p, kind){
+    panel.replaceChildren(
+      h('div',{class:`card ${kind==='w'?'c-sky':'c-tomato'} pop`}, h('p',{class:'kicker',style:'color:var(--on)'}, `${p} · ${kind==='w'?'Wahrheit':'Pflicht'}`), h('p',{class:'big2'}, card(kind))),
+      field('Stufe', chips([['chill','Chillig'],['bold','Mutig']], level, v => { level=v; showCard(p, kind); }))
+    );
+  }
+}
+
+/* --- Die Bombe --- */
+const bombTally = {};
+function gBombe(){
+  let prompt = pick(BOMB);
+  function setup(){
+    screen(cstage(
+      intro('Wer das Handy hat, nennt etwas Passendes und gibt es sofort weiter. Wiederholungen zählen nicht! Irgendwann explodiert die Bombe. Wann, weiß niemand.'),
+      h('p',{class:'kicker'}, 'Aufgabe für diese Runde'),
+      h('div',{class:'card c-sun pop'}, h('p',{class:'big2'}, prompt)),
+      h('button',{type:'button',class:'btn ghost',onclick:() => { prompt = pick(BOMB); setup(); }}, 'Andere Aufgabe'),
+      h('button',{type:'button',class:'btn big tomato',onclick:arm}, 'Bombe scharf machen'),
+      tallyView()
+    ));
+  }
+  function arm(){
+    const total = 18000 + rand(32000), start = Date.now();
+    let passes = 0;
+    const cnt = h('p',{class:'note'}, '0 × weitergegeben');
+    screen(cstage(
+      h('p',{class:'kicker'}, 'Nenne:'),
+      h('div',{class:'big2'}, prompt),
+      h('div',{class:'bomb'}, h('div',{class:'fuse'}), h('div',{class:'cap'}), h('div',{class:'ball'}), h('div',{class:'spark'})),
+      h('button',{type:'button',class:'btn big',onclick:() => { passes++; cnt.textContent = `${passes} × weitergegeben`; tone(900,.04); }}, 'Gesagt! Weitergeben'),
+      cnt
+    ));
+    const tick = () => {
+      const el = Date.now() - start;
+      if (el >= total) return explode();
+      tone(el/total > .75 ? 1200 : 1000, .03, 'square', .04);
+      later(tick, 700 - 560*(el/total));
+    };
+    tick();
+  }
+  function explode(){
+    noise(1.1); buzz(600);
+    gBody.classList.remove('boom'); void gBody.offsetWidth; gBody.classList.add('boom');
+    screen(cstage(
+      h('div',{class:'mega pop',style:'color:var(--tomato);font-size:clamp(4rem,20vw,9rem)'}, 'BUMM!'),
+      h('p',{class:'lead'}, 'Wer hatte die Bombe in der Hand?'),
+      h('div',{class:'tally'}, players.map(p => h('button',{type:'button',class:'btn ghost',onclick:() => { bombTally[p] = (bombTally[p]||0)+1; prompt = pick(BOMB); setup(); }}, p))),
+      h('button',{type:'button',class:'btn small',onclick:() => { prompt = pick(BOMB); setup(); }}, 'Überspringen')
+    ));
+    later(() => gBody.classList.remove('boom'), 800);
+  }
+  function tallyView(){
+    const rows = Object.entries(bombTally).filter(([p]) => players.includes(p)).sort((a,b) => b[1]-a[1]);
+    if (!rows.length) return null;
+    return h('div',{class:'field',style:'align-items:center'}, h('span',null,'Explosionen bisher'),
+      h('div',{class:'chips',style:'justify-content:center'}, rows.map(([p,c]) => h('span',{class:'chip'}, `${p}: ${c}`))));
+  }
+  setup();
+}
+
+/* --- Reaktions-Duell --- */
+function gReaktion(){
+  let mode = 'classic', target = 5, sc = {a:0,b:0}, phase = 'idle', pending = null, isMatch = false, goAt = 0;
+  const COLORS = [['ROT','var(--tomato)'],['BLAU','var(--sky)'],['GRÜN','var(--mint)'],['GELB','var(--sun)']];
+  const mk = (t, pos) => {
+    const sig = h('div',{class:'dsig'}, 'Bereit?'), score = h('div',{class:'ds'}, '0');
+    const el = h('div',{class:`half ${t} ${pos}`,role:'button','aria-label':`${tName(t)} tippen`},
+      h('div',{class:'in'}, h('div',{class:'dn'}, tName(t)), h('div',{class:'dm'}, joinNames(tMembers(t))), score, sig));
+    el.addEventListener('pointerdown', e => { e.preventDefault(); tap(t); });
+    return { el, sig, score };
+  };
+  const A = mk('a','top'), B = mk('b','bottom');
+  const mid = h('div',{class:'mid'});
+  screen(h('div',{class:'duel'}, A.el, mid, B.el));
+  gBody.classList.add('flush');
+  onKey = e => { if (e.key==='a'||e.key==='A') tap('a'); if (e.key==='l'||e.key==='L') tap('b'); };
+  const both = (fn) => { fn(A,'a'); fn(B,'b'); };
+  function setBoth(text, cls, color){
+    both(x => { x.sig.textContent = text; x.sig.style.color = color || ''; x.el.classList.remove('go','dark'); if (cls) x.el.classList.add(cls); });
+  }
+  function midIdle(){
+    mid.replaceChildren(
+      chips([['classic','Klassisch'],['stroop','Farbfalle']], mode, v => { mode=v; midIdle(); }),
+      h('button',{type:'button',class:'btn small',onclick:start}, sc.a||sc.b ? 'Neues Spiel' : 'Start'),
+      h('span',{class:'note'}, mode==='classic' ? 'Tippt auf eure Hälfte, sobald sie grün wird. Zu früh = Punkt für die anderen.' : 'Tippt nur, wenn Wort und Farbe passen. Falsch getippt = Punkt für die anderen.')
+    );
+  }
+  function start(){
+    sc = {a:0,b:0}; both((x,t) => x.score.textContent = 0);
+    mid.replaceChildren(h('span',{class:'note'}, `Erstes Team mit ${target} Punkten gewinnt · Tisch-Modus`), h('button',{type:'button',class:'btn small ghost',onclick:stop}, 'Stopp'));
+    nextRound();
+  }
+  function stop(){ clearTimers(); phase='idle'; setBoth('Bereit?'); midIdle(); }
+  function nextRound(){ mode==='classic' ? waitGreen() : stroop(); }
+  function waitGreen(){
+    phase = 'wait'; setBoth('Warten …', 'dark');
+    pending = later(() => { phase='go'; goAt=Date.now(); setBoth('JETZT!','go'); tone(880,.15); }, 1500 + rand(3500));
+  }
+  function stroop(){
+    phase = 'stroop';
+    const match = Math.random() < .32;
+    const w = pick(COLORS); let c = w;
+    if (!match) while (c === w) c = pick(COLORS);
+    isMatch = match;
+    setBoth(w[0], 'dark', c[1]);
+    pending = later(stroop, match ? 1500 : 1000 + rand(400));
+  }
+  function tap(t){
+    if (phase==='wait'){ clearTimeout(pending); point(other(t), t, 'Zu früh!'); }
+    else if (phase==='go'){ point(t, other(t), `${Date.now()-goAt} ms`); }
+    else if (phase==='stroop'){ clearTimeout(pending); isMatch ? point(t, other(t), 'Erkannt!') : point(other(t), t, 'Reingefallen!'); }
+  }
+  function point(win, lose, msg){
+    phase = 'cool'; sc[win]++;
+    const W_ = win==='a'?A:B, L_ = win==='a'?B:A;
+    W_.score.textContent = sc[win];
+    both(x => { x.el.classList.remove('go','dark'); x.sig.style.color=''; });
+    W_.sig.textContent = 'Punkt!'; L_.sig.textContent = msg;
+    if (msg.endsWith('ms')) { W_.sig.textContent = `Punkt! ${msg}`; L_.sig.textContent = 'Zu langsam'; }
+    tone(win==='a'?520:660,.15); buzz(80);
+    if (sc[win] >= target){
+      yay(); W_.sig.textContent = 'GEWONNEN!'; L_.sig.textContent = 'Verloren';
+      phase = 'idle'; midIdle(); return;
+    }
+    later(nextRound, 1500);
+  }
+  midIdle();
+}
+
+/* --- Vier gewinnt --- */
+function gVier(){
+  let wins = {a:0,b:0}, starter = 'a';
+  function game(){
+    const board = Array.from({length:6}, () => Array(7).fill(null));
+    let turn = starter, moves = {a:0,b:0}, over = false;
+    const cells = [];
+    const grid = h('div',{class:'c4',role:'grid','aria-label':'Spielfeld'});
+    for (let r=0;r<6;r++){ cells.push([]); for (let c=0;c<7;c++){
+      const b = h('button',{type:'button','aria-label':`Spalte ${c+1}`,onclick:() => drop(c)});
+      cells[r].push(b); grid.append(b);
+    }}
+    const info = h('div',{class:'big2',style:'text-align:center'});
+    const sub = h('p',{class:'note',style:'text-align:center'});
+    const acts = h('div',{class:'rowx'});
+    const sb = h('div');
+    screen(stage(sb, info, sub, grid, acts));
+    onKey = e => { const k = parseInt(e.key,10); if (k>=1 && k<=7) drop(k-1); };
+    function upd(){
+      sb.replaceChildren(scoreboardWins());
+      if (over) return;
+      const m = tMembers(turn);
+      info.textContent = `${tName(turn)} ist dran`;
+      info.style.color = turn==='a' ? 'var(--tomato)' : 'var(--ink)';
+      sub.textContent = `Es zieht: ${m[moves[turn] % m.length]} · ${turn==='a'?'rote':'gelbe'} Steine · keine Absprachen!`;
+    }
+    function scoreboardWins(){
+      const el = scoreboard(wins, over ? null : turn);
+      el.querySelectorAll('.spill.b').forEach(x => x.style.background = 'var(--sun)');
+      return el;
+    }
+    function drop(c){
+      if (over) return;
+      let r = 5; while (r>=0 && board[r][c]) r--;
+      if (r < 0){ grid.classList.remove('shake'); void grid.offsetWidth; grid.classList.add('shake'); return; }
+      board[r][c] = turn;
+      cells[r][c].append(h('span',{class:`disc ${turn}`,style:`--d:${r+1}`}));
+      cells[r][c].setAttribute('aria-label', `Spalte ${c+1}, ${tName(turn)}`);
+      tone(turn==='a'?330:440,.08);
+      const line = winLine(r,c);
+      moves[turn]++;
+      if (line){
+        over = true; wins[turn]++;
+        line.forEach(([y,x]) => cells[y][x].firstChild.classList.add('win'));
+        yay(); info.textContent = `${tName(turn)} gewinnt!`; sub.textContent = `Vier in einer Reihe. Stand: ${wins.a} zu ${wins.b}.`;
+        starter = other(turn);
+        acts.replaceChildren(h('button',{type:'button',class:'btn',onclick:game}, 'Nächste Runde'));
+        sb.replaceChildren(scoreboardWins());
+        return;
+      }
+      if (board.every(row => row.every(Boolean))){
+        over = true; info.textContent = 'Unentschieden!'; sub.textContent = 'Das Feld ist voll.'; starter = other(starter);
+        acts.replaceChildren(h('button',{type:'button',class:'btn',onclick:game}, 'Nächste Runde')); return;
+      }
+      turn = other(turn); upd();
+    }
+    function winLine(r,c){
+      const who = board[r][c];
+      for (const [dy,dx] of [[0,1],[1,0],[1,1],[1,-1]]){
+        const line = [[r,c]];
+        for (const s of [1,-1]){ let y=r+dy*s, x=c+dx*s; while (y>=0&&y<6&&x>=0&&x<7&&board[y][x]===who){ line.push([y,x]); y+=dy*s; x+=dx*s; } }
+        if (line.length >= 4) return line;
+      }
+      return null;
+    }
+    upd();
+  }
+  game();
+}
+
+/* --- Stadt Land Fluss --- */
+function gSlf(){
+  let sel = new Set(SLF_BASE), time = 90, hard = false;
+  const used = new Set();
+  function setup(){
+    screen(stage(
+      intro('Jeder braucht Stift und Zettel. Zieht einen Buchstaben, dann schreibt jeder zu jeder Kategorie ein Wort mit diesem Anfangsbuchstaben. Punkte: 20 wenn nur du etwas hast, 10 für ein eigenes Wort, 5 wenn jemand dasselbe hat.'),
+      field('Kategorien antippen', h('div',{class:'chips'}, [...SLF_BASE, ...SLF_FUN].map(c =>
+        h('button',{type:'button',class:'chip','aria-pressed':String(sel.has(c)),onclick:() => { sel.has(c) ? sel.delete(c) : sel.add(c); setup(); }}, c)))),
+      h('div',{class:'rowx',style:'justify-content:flex-start'},
+        h('button',{type:'button',class:'btn small ghost',onclick:() => { sel = new Set([...W('Stadt|Land|Fluss'), ...shuffle(SLF_FUN).slice(0,4)]); setup(); }}, 'Zufällige Spaß-Kategorien'),
+        h('button',{type:'button',class:'btn small ghost',onclick:() => { sel = new Set(SLF_BASE); setup(); }}, 'Nur Klassiker')),
+      field('Zeit', chips([[60,'60 Sek.'],[90,'90 Sek.'],[120,'2 Min.'],[0,'Bis einer „Stopp“ ruft']], time, v => { time=v; setup(); })),
+      field('Buchstaben', chips([[false,'Normale'],[true,'Auch schwere (Q, X, Y …)']], hard, v => { hard=v; setup(); })),
+      h('button',{type:'button',class:'btn big',disabled:!sel.size,onclick:roll}, 'Buchstaben ziehen')
+    ));
+  }
+  function roll(){
+    let pool = W(hard ? 'A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z' : 'A|B|D|E|F|G|H|I|K|L|M|N|O|P|R|S|T|U|W').filter(l => !used.has(l));
+    if (!pool.length){ used.clear(); return roll(); }
+    const final = pick(pool); used.add(final);
+    const L = h('div',{class:'letter'}, '?');
+    screen(cstage(h('p',{class:'kicker'},'Der Buchstabe ist …'), L));
+    let k = 0;
+    const spin = () => { L.textContent = pick(pool.length>1?pool:[final]); tone(500+k*20,.03); if (++k < 18) later(spin, 40+k*6); else land(); };
+    const land = () => {
+      L.textContent = final; L.classList.add('pop'); yay();
+      const tEl = h('div',{class:'timer'}, time || '');
+      const cats = h('div',{class:'cats'}, [...sel].map(c => h('span',null,c)));
+      screen(cstage(
+        h('p',{class:'kicker'}, 'Schreibt los!'),
+        h('div',{class:'letter pop'}, final),
+        time ? tEl : h('p',{class:'lead'}, 'Wer fertig ist, ruft „Stopp!“ und alle legen die Stifte weg.'),
+        time ? timerBar(time) : null,
+        cats,
+        h('div',{class:'rowx'}, h('button',{type:'button',class:'btn',onclick:roll}, 'Nächster Buchstabe'), h('button',{type:'button',class:'btn ghost',onclick:setup}, 'Kategorien ändern'))
+      ));
+      if (time) countdown(time, s => { tEl.textContent = s; }, () => { tEl.textContent = 'Stifte weg!'; });
+    };
+    later(spin, 60);
+  }
+  setup();
+}
+
+/* --- Galgenmännchen --- */
+function gGalgen(){
+  const norm = s => s.toUpperCase().replace(/ß/g,'SS').replace(/[^A-ZÄÖÜ \-]/g,'').replace(/\s+/g,' ').trim();
+  function setup(msg){
+    const inp = h('input',{id:'hangword',class:'txt',type:'password',placeholder:'Geheimes Wort eingeben',autocomplete:'off',maxlength:'30'});
+    const showB = h('button',{type:'button',class:'btn small ghost',onclick:() => { inp.type = inp.type==='password' ? 'text' : 'password'; }}, 'Wort zeigen');
+    screen(stage(
+      intro('Eine Person tippt heimlich ein Wort ein, alle anderen raten Buchstaben. Nach zehn Fehlern ist das Männchen komplett und das Wort hat gewonnen.'),
+      field('Eigenes Wort', inp),
+      msg ? h('p',{class:'note',style:'color:var(--tomato)'}, msg) : null,
+      h('div',{class:'rowx',style:'justify-content:flex-start'},
+        showB,
+        h('button',{type:'button',class:'btn',onclick:() => { const w = norm(inp.value); if (w.replace(/[ \-]/g,'').length < 3) return setup('Das Wort braucht mindestens drei Buchstaben.'); play(w); }}, 'Mit diesem Wort spielen')),
+      h('p',{class:'kicker'}, 'oder'),
+      h('button',{type:'button',class:'btn big pink',onclick:() => play(pick(HANG))}, 'Zufallswort, alle raten zusammen')
+    ));
+  }
+  function play(word){
+    const guessed = new Set(); let wrong = 0; const MAX = 10;
+    const parts = [
+      '<line x1="20" y1="208" x2="130" y2="208"/>','<line x1="50" y1="208" x2="50" y2="18"/>','<line x1="50" y1="18" x2="140" y2="18"/>','<line x1="140" y1="18" x2="140" y2="48"/>',
+      '<circle cx="140" cy="66" r="18"/>','<line x1="140" y1="84" x2="140" y2="140"/>','<line x1="140" y1="100" x2="116" y2="124"/>','<line x1="140" y1="100" x2="164" y2="124"/>',
+      '<line x1="140" y1="140" x2="120" y2="180"/>','<line x1="140" y1="140" x2="160" y2="180"/>'];
+    const svgBox = h('div');
+    const slots = h('div',{class:'slots','aria-live':'polite'});
+    const info = h('p',{class:'note',style:'text-align:center'});
+    const keys = h('div',{class:'keys'});
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ'.split('');
+    const kb = {};
+    letters.forEach(l => { kb[l] = h('button',{type:'button',onclick:() => guess(l)}, l); keys.append(kb[l]); });
+    const end = h('div',{class:'rowx'});
+    screen(stage(h('div',{class:'hang'}, svgBox, h('div',{class:'stage',style:'width:100%'}, slots, info)), keys, end));
+    onKey = e => { const l = e.key.toUpperCase(); if (letters.includes(l)) guess(l); };
+    function draw(){
+      svgBox.innerHTML = `<svg viewBox="0 0 200 220" role="img" aria-label="${wrong} von ${MAX} Fehlern">${parts.slice(0,wrong).join('')}</svg>`;
+      slots.replaceChildren(...[...word].map(ch => ch===' ' ? h('span',{class:'gap'},' ') : ch==='-' ? h('span',{class:'gap'},'-') : h('span',null, guessed.has(ch) || over() ? ch : ' ')));
+      info.textContent = `${MAX-wrong} Fehler übrig`;
+    }
+    const solved = () => [...word].every(ch => ch===' '||ch==='-'||guessed.has(ch));
+    const over = () => wrong >= MAX || solved();
+    function guess(l){
+      if (over() || guessed.has(l)) return;
+      guessed.add(l);
+      const hit = word.includes(l);
+      kb[l].classList.add(hit ? 'hit' : 'miss'); kb[l].disabled = true;
+      if (hit) tone(800,.08); else { wrong++; tone(200,.15); buzz(60); }
+      draw();
+      if (solved()){ yay(); info.textContent = 'Geschafft! Ihr habt das Wort erraten.'; finish(); }
+      else if (wrong >= MAX){ noise(.5); info.textContent = `Verloren! Das Wort war ${word}.`; finish(); }
+    }
+    function finish(){
+      Object.values(kb).forEach(b => b.disabled = true);
+      end.replaceChildren(h('button',{type:'button',class:'btn',onclick:() => setup()}, 'Neues Wort'), h('button',{type:'button',class:'btn ghost',onclick:() => play(pick(HANG))}, 'Zufallswort'));
+    }
+    draw();
+  }
+  setup();
+}
+
+/* --- 5 Sekunden --- */
+function gFive(){
+  let target = 8, turn = 0, sc = {a:0,b:0};
+  const next = deck(FIVE);
+  function setup(){
+    screen(stage(
+      intro('Wer dran ist, liest die Aufgabe laut und muss in fünf Sekunden drei passende Dinge nennen. Das andere Team entscheidet, ob es zählt. Kein Stottern, keine Ausreden!'),
+      field('Spiel bis', chips([[5,'5 Punkte'],[8,'8 Punkte'],[12,'12 Punkte']], target, v => { target=v; setup(); })),
+      teamsBox(),
+      h('button',{type:'button',class:'btn big mint',onclick:pre}, 'Los geht’s')
+    ));
+  }
+  function pre(){
+    const ti = turnInfo(turn);
+    screen(cstage(
+      scoreboard(sc, ti.t, target),
+      h('p',{class:'kicker'}, tName(ti.t)),
+      h('div',{class:'mega pop'}, ti.actor),
+      h('p',{class:'lead'}, 'Bereit? Die Uhr läuft sofort los.'),
+      h('button',{type:'button',class:'btn big',onclick:() => go(ti)}, 'Aufgabe zeigen')
+    ));
+  }
+  function go(ti){
+    const q = next();
+    const tEl = h('div',{class:'timer'}, 5);
+    const bar = timerBar(5); bar.classList.add('hot');
+    screen(cstage(
+      h('div',{class:'card c-sun pop'}, h('p',{class:'kicker',style:'color:var(--on)'},'Nenne'), h('p',{class:'mega'}, q)),
+      tEl, bar,
+      h('div',{class:'row2'},
+        h('button',{type:'button',class:'btn',onclick:() => res(ti,false)}, 'Nicht geschafft'),
+        h('button',{type:'button',class:'btn mint',onclick:() => res(ti,true)}, 'Geschafft!'))
+    ));
+    countdown(5, s => { tEl.textContent = s; }, () => { tEl.textContent = 'Zeit!'; });
+  }
+  function res(ti, ok){
+    if (ok){ sc[ti.t]++; yay(); } else tone(200,.2);
+    turn++;
+    if (sc[ti.t] >= target) return winScreen(ti.t, scoreboard(sc,null,target), () => { sc={a:0,b:0}; turn=0; setup(); });
+    pre();
+  }
+  setup();
+}
+
+/* ================= registry ================= */
+const GAMES = [
+  {id:'imposter', name:'Imposter', kick:'Bluffen', color:'tomato', run:gImposter, desc:'Alle kennen das geheime Wort, außer einem. Findet den Imposter, bevor er euch austrickst.', tags:['Ab 3','Handy rumgeben']},
+  {id:'stirn', name:'Stirnraten', kick:'Raten', color:'sun', run:gStirn, desc:'Handy an die Stirn, dein Team erklärt. Wie viele Begriffe schafft ihr in einer Minute?', tags:['2 gegen 2','Timer']},
+  {id:'activity', name:'Activity-Duell', kick:'Erklären · Zeichnen · Pantomime', color:'sky', run:gActivity, desc:'Begriffe erklären, aufs Display zeichnen oder vorspielen. Erstes Team am Ziel gewinnt.', tags:['2 gegen 2','Zeichenfläche']},
+  {id:'wop', name:'Wahrheit oder Pflicht', kick:'Mut', color:'pink', run:gWop, desc:'Über 70 Karten in zwei Stufen: chillig oder mutig. Mit Joker zum Tauschen.', tags:['Ab 2','Reihum']},
+  {id:'fragen', name:'Fragenrunde', kick:'Quatschen', color:'mint', run:gFragen, desc:'Wer würde eher, Würdest du eher und Ich hab noch nie. Mit Stimmen- und Finger-Zähler.', tags:['Ab 2','Drei Modi']},
+  {id:'flasche', name:'Flaschendrehen', kick:'Zufall', color:'sun', run:gFlasche, desc:'Die Flasche zeigt auf eure Namen. Danach direkt Wahrheit oder Pflicht.', tags:['Ab 2','Mit euren Namen']},
+  {id:'bombe', name:'Die Bombe', kick:'Nervenkitzel', color:'tomato', run:gBombe, desc:'Begriff nennen, weitergeben, zittern. Der versteckte Timer tickt immer schneller.', tags:['Ab 3','Handy rumgeben']},
+  {id:'reaktion', name:'Reaktions-Duell', kick:'Tempo', color:'mint', run:gReaktion, desc:'Handy in die Tischmitte, jedes Team hat eine Hälfte. Wer tippt schneller? Mit Farbfallen-Modus.', tags:['2 gegen 2','Tisch-Modus']},
+  {id:'vier', name:'Vier gewinnt', kick:'Taktik', color:'sky', run:gVier, desc:'Team Rot gegen Team Gelb. Die Teammitglieder ziehen abwechselnd, ohne Absprache.', tags:['2 gegen 2','Klassiker']},
+  {id:'slf', name:'Stadt, Land, Fluss', kick:'Klassiker', color:'sun', run:gSlf, desc:'Buchstaben-Würfel, Timer und Spaß-Kategorien wie „Ausrede fürs Zuspätkommen“.', tags:['Stift & Papier','Ab 2']},
+  {id:'galgen', name:'Galgenmännchen', kick:'Klassiker', color:'pink', run:gGalgen, desc:'Eigenes Geheimwort eintippen oder ein Zufallswort nehmen. Zehn Fehler sind erlaubt.', tags:['Ab 2','Grundschul-Klassiker']},
+  {id:'five', name:'5 Sekunden', kick:'Unter Druck', color:'mint', run:gFive, desc:'Nenne drei Pizzabeläge in fünf Sekunden. Klingt leicht. Ist es nicht.', tags:['2 gegen 2','Schnell']}
+];
+$('#games').replaceChildren(...GAMES.map(g => h('button',{type:'button',class:`tile bg-${g.color}`,onclick:() => openGame(g.id)},
+  h('span',{class:'go','aria-hidden':'true'},'▶'),
+  h('span',{class:'kick'}, g.kick), h('h3',null,g.name), h('p',null,g.desc),
+  h('span',{class:'tags'}, g.tags.map(t => h('span',{class:'tag'},t))))));
+
+renderFilters(); renderList(); renderCrew(); roll(true);
+</script>
